@@ -168,7 +168,6 @@ async function restoreDashboard() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     state.profile = data.profile;
-    renderProfileSummary(data.profile);
     goToPage(4);
     loadRecommendations();
     loadMarketplace();
@@ -527,48 +526,10 @@ async function confirmAndFinish() {
   state.sellerId = onboard.seller_id;
   state.profile  = onboard.profile;
 
-  renderProfileSummary(onboard.profile);
-  renderContributions();
   goToPage(4);
-  showToast('Profile built — matching Fleek inventory to your shop', 'success');
+  showToast('Profile built — click your initials any time to see it', 'success');
   loadRecommendations();
   loadMarketplace();
-}
-
-function renderContributions() {
-  // Build contributions list
-  const contributions = [];
-  if (state.importedData.orders > 0)
-    contributions.push({ icon: '📦', label: `${state.importedData.orders} orders imported` });
-  if (state.voiceBlob)
-    contributions.push({ icon: '🎙️', label: `Voice note (${formatTime(state.voiceDuration)})` });
-  if (state.sheetFile)
-    contributions.push({ icon: '📊', label: state.sheetFile.name });
-  if (state.prefsText.trim().length > 0) {
-    const wc = state.prefsText.trim().split(/\s+/).length;
-    contributions.push({ icon: '✍️', label: `${wc} word preference note` });
-  }
-
-  document.getElementById('successContributions').innerHTML =
-    contributions.map(c => `
-      <div class="contribution-chip">
-        <span>${c.icon}</span>
-        <span>${c.label}</span>
-      </div>
-    `).join('');
-}
-
-function renderProfileSummary(profile) {
-  const el = document.getElementById('profileSummary');
-  if (!el) return;
-  const band = profile.price_band;
-  const chips = [
-    ...profile.aesthetic.map(a => `<div class="profile-chip chip-aesthetic">${a}</div>`),
-    `<div class="profile-chip chip-band">£${Math.round(band.min)}–£${Math.round(band.max)} · median £${Math.round(band.median)}</div>`,
-    ...profile.saturation.gaps.map(g => `<div class="profile-chip chip-gap">Gap: ${g}</div>`),
-    ...profile.saturation.oversupplied.map(o => `<div class="profile-chip chip-over">Well stocked: ${o}</div>`),
-  ];
-  el.innerHTML = `<h3 class="recs-heading">Your shop's DNA</h3><div class="profile-chips">${chips.join('')}</div>`;
 }
 
 async function loadRecommendations() {
