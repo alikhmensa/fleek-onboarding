@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fleek Companion – Seller Onboarding</title>
-  <meta name="description" content="Connect your stores to Fleek and enrich your profile with images, voice notes and preferences." />
+  <title>Fleek – Seller Onboarding</title>
+  <meta name="description" content="Connect your store to Fleek. We learn what you sell and hand-pick wholesale inventory that fits your shop." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FFC91D' d='M12 1l2.4 6.2 6.6-2-4 5.4 5 4.4-6.6.2-1.4 6.8-3-6.2-6 3 2.6-6.6L1 9l6.8-.4z'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -15,17 +16,8 @@
   <nav class="navbar">
     <div class="nav-inner">
       <div class="nav-brand">
-        <div class="brand-icon">
-          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 4h16l-6 11h6L10 28l3-13H8L8 4z" fill="url(#lg1)"/>
-            <defs>
-              <linearGradient id="lg1" x1="8" y1="4" x2="24" y2="28" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#a855f7"/><stop offset="1" stop-color="#22d3ee"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <span class="brand-name">fleek <span class="brand-sub">companion</span></span>
+        <img src="assets/fleek-logo.png" alt="FLEEK" class="brand-logo" />
+        <span class="brand-tag">Seller onboarding</span>
       </div>
 
       <div class="nav-steps" id="navSteps">
@@ -54,9 +46,9 @@
         <div class="hero-orb orb3"></div>
       </div>
       <div class="page-content hero-content">
-        <div class="badge-pill">✨ Skip the survey · Takes 2 min</div>
-        <h1 class="hero-title">Your stores.<br/>Your voice.<br/>One profile.</h1>
-        <p class="hero-sub">Connect your eBay or Shopify store, verify your identity, then enrich your Fleek profile with images, voice notes and preferences — no lengthy surveys.</p>
+        <div class="badge-pill"><span class="star">★</span> 300,000+ resellers source on Fleek</div>
+        <h1 class="hero-title">Sourcing that<br/><span class="hl">knows your shop</span></h1>
+        <p class="hero-sub">Connect your store or upload your sales history. Fleek learns what you sell, what you're missing and what your buyers pay — then hand-picks wholesale bundles that fit your shelves.</p>
         <div class="hero-platforms">
           <div class="platform-chip">
             <svg width="18" height="18" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#E53238"/><path d="M7 9h18l-2 14H9L7 9zm4 3v8m4-8v8m4-8v8" stroke="white" stroke-width="2" fill="none"/></svg>eBay
@@ -76,11 +68,11 @@
           <div class="flow-step-item"><div class="flow-step-num">4</div><span>Enrich profile</span></div>
         </div>
         <div class="hero-cta">
-          <button class="btn-primary" onclick="goToPage(1)">
+          <button class="btn-primary btn-accent" onclick="goToPage(1)">
             Get started
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
-          <p class="cta-note">Free · No credit card required</p>
+          <p class="cta-note">Free · Takes 2 minutes · No credit card required</p>
         </div>
       </div>
     </section>
@@ -89,40 +81,51 @@
     <section class="page" id="page-register">
       <div class="page-content form-page">
         <div class="form-header">
-          <h2>Create your account</h2>
-          <p>We'll send a verification email to confirm your identity before importing data</p>
+          <h2>Create your buyer account</h2>
+          <p>Join 300,000+ resellers sourcing wholesale inventory on Fleek</p>
         </div>
         <form class="card-form" id="registerForm" onsubmit="handleRegister(event)">
+          <button type="button" class="btn-sso" onclick="showToast('Google sign-in is coming soon — use email for now','info')">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18A10.97 10.97 0 0 0 1 12c0 1.77.43 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.16-3.16C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            Continue with Google
+          </button>
+          <div class="form-divider">or sign up with email</div>
           <div class="form-row">
             <div class="field">
               <label for="firstName">First name</label>
-              <input type="text" id="firstName" placeholder="Alex" required />
+              <input type="text" id="firstName" placeholder="Alex" autocomplete="given-name" required />
             </div>
             <div class="field">
               <label for="lastName">Last name</label>
-              <input type="text" id="lastName" placeholder="Johnson" required />
+              <input type="text" id="lastName" placeholder="Johnson" autocomplete="family-name" required />
             </div>
           </div>
           <div class="field">
-            <label for="email">Email address</label>
-            <input type="email" id="email" placeholder="alex@example.com" required />
-            <p class="field-hint">A verification link will be sent here</p>
+            <label for="businessName">Shop / business name</label>
+            <input type="text" id="businessName" placeholder="e.g. Vintage Vault London" autocomplete="organization" required />
+          </div>
+          <div class="field">
+            <label for="email">Work email</label>
+            <input type="email" id="email" placeholder="alex@yourshop.com" autocomplete="email" required />
+            <p class="field-hint">We'll send a verification link to this address</p>
           </div>
           <div class="field">
             <label for="password">Password</label>
             <div class="input-wrap">
-              <input type="password" id="password" placeholder="Min 8 characters" required minlength="8" />
+              <input type="password" id="password" placeholder="Create a password" autocomplete="new-password" required minlength="8" pattern="(?=.*\d)(?=.*[a-zA-Z]).{8,}" title="At least 8 characters with letters and a number" />
               <button type="button" class="input-icon" onclick="togglePassword()" aria-label="Toggle password">
                 <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </div>
+            <div class="pw-reqs"><span>8+ characters</span><span>1 letter</span><span>1 number</span></div>
           </div>
           <div class="field">
-            <label for="sellerType">I primarily sell</label>
+            <label for="sellerType">What do you sell?</label>
             <div class="select-wrap">
               <select id="sellerType">
-                <option value="fashion">Fashion &amp; Clothing</option>
-                <option value="accessories">Accessories &amp; Bags</option>
+                <option value="vintage">Vintage &amp; secondhand clothing</option>
+                <option value="fashion">New fashion &amp; clothing</option>
+                <option value="accessories">Accessories &amp; bags</option>
                 <option value="mixed">Mixed items</option>
                 <option value="other">Other</option>
               </select>
@@ -130,13 +133,13 @@
           </div>
           <div class="checkbox-field">
             <input type="checkbox" id="terms" required />
-            <label for="terms">I agree to Fleek's <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a></label>
+            <label for="terms">I agree to Fleek's <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a>, and consent to Fleek processing my store data to personalise sourcing recommendations</label>
           </div>
           <button type="submit" class="btn-primary full-width" id="registerBtn">
-            Create account &amp; send verification
+            Create account
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
-          <p class="login-link">Already have an account? <a href="#" class="link">Sign in</a></p>
+          <p class="login-link">Already have an account? <a href="#" class="link">Log in</a></p>
         </form>
       </div>
     </section>
@@ -147,70 +150,53 @@
         <div class="verify-container">
           <div class="verify-icon-wrap">
             <div class="verify-envelope">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="url(#eg)" stroke-width="1.5">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.5">
                 <rect x="2" y="4" width="20" height="16" rx="2"/>
                 <path d="M2 7l10 7 10-7"/>
-                <defs>
-                  <linearGradient id="eg" x1="2" y1="4" x2="22" y2="20" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#a855f7"/><stop offset="1" stop-color="#22d3ee"/>
-                  </linearGradient>
-                </defs>
               </svg>
             </div>
             <div class="verify-pulse"></div>
           </div>
 
-          <h2>Check your inbox</h2>
-          <p class="verify-sub">We've sent a verification link to<br/><strong id="verifyEmailDisplay">your email</strong></p>
+          <h2>Verify your email</h2>
+          <p class="verify-sub">We've sent a verification link to<br/><strong id="verifyEmailDisplay">your email</strong>.<br/>Click the link to continue — this page will update automatically.</p>
 
           <div class="verify-steps-list">
             <div class="vstep done" id="vstep1">
               <div class="vstep-icon">✓</div>
               <span>Account created</span>
             </div>
-            <div class="vstep pending" id="vstep2">
+            <div class="vstep pending active-step" id="vstep2">
               <div class="vstep-icon vstep-spin">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
               </div>
-              <span>Waiting for you to click the link in your email</span>
+              <span>Waiting for email confirmation</span>
             </div>
             <div class="vstep locked" id="vstep3">
-              <div class="vstep-icon">🔒</div>
-              <span>Import authority granted</span>
+              <div class="vstep-icon">·</div>
+              <span>Store import unlocked</span>
             </div>
           </div>
 
-          <!-- Simulated email preview card -->
-          <div class="email-preview-card" id="emailPreviewCard">
-            <div class="email-preview-header">
-              <div class="email-preview-from">
-                <div class="email-avatar">F</div>
-                <div>
-                  <p class="email-from-name">Fleek Companion</p>
-                  <p class="email-from-addr">noreply@fleek.com</p>
-                </div>
-              </div>
-              <span class="email-preview-badge">Preview</span>
+          <div class="verify-actions-card">
+            <p>Didn't receive it? Check your spam folder, or make sure <strong>onboarding@joinfleek.com</strong> isn't blocked.</p>
+            <div class="resend-row">
+              <button class="btn-ghost" onclick="resendVerification()">Resend email</button>
+              <span>·</span>
+              <button class="btn-ghost" onclick="goToPage(1)">Change email address</button>
             </div>
-            <div class="email-preview-body">
-              <p class="email-subj">Verify your Fleek account</p>
-              <p class="email-body-text">Hi <span id="emailFirstName">there</span>, click the button below to verify your email and unlock data import.</p>
-              <button class="btn-verify-email" id="verifyEmailBtn" onclick="simulateEmailVerification()">
-                ✉️ Verify my email &amp; unlock import
-              </button>
-              <p class="email-footer-note">This link expires in 24 hours. If you didn't create an account, ignore this email.</p>
-            </div>
+            <p class="demo-verify-note">Demo environment: <button type="button" onclick="simulateEmailVerification()">mark email as verified</button></p>
           </div>
 
           <div class="verify-success-banner" id="verifySuccessBanner" style="display:none">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            Email verified! You can now connect your stores and import data.
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#178a44" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Email verified. You can now connect your store and import your sales history.
           </div>
 
           <div class="verify-footer">
-            <button class="btn-ghost" onclick="resendVerification()">Resend email</button>
+            <span></span>
             <button class="btn-primary" id="continueAfterVerify" onclick="goToPage(3)" disabled>
-              Continue to connect stores
+              Continue
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
           </div>
@@ -249,8 +235,8 @@
           </div>
           <div class="platform-card-body" id="ebayBody">
             <div class="platform-features">
-              <span class="feature-tag">📦 Orders</span><span class="feature-tag">🏷️ Listings</span>
-              <span class="feature-tag">🚚 Tracking</span><span class="feature-tag">👤 Profile</span>
+              <span class="feature-tag">Orders</span><span class="feature-tag">Listings</span>
+              <span class="feature-tag">Tracking</span><span class="feature-tag">Profile</span>
             </div>
             <div class="platform-auth">
               <p class="auth-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure OAuth – redirects to eBay to authorize</p>
@@ -286,8 +272,8 @@
           </div>
           <div class="platform-card-body" id="shopifyBody">
             <div class="platform-features">
-              <span class="feature-tag">📦 Orders</span><span class="feature-tag">🛍️ Products</span>
-              <span class="feature-tag">🚚 Fulfilment</span><span class="feature-tag">👤 Profile</span>
+              <span class="feature-tag">Orders</span><span class="feature-tag">Products</span>
+              <span class="feature-tag">Fulfilment</span><span class="feature-tag">Profile</span>
             </div>
             <div class="platform-auth">
               <div class="shopify-input-row">
@@ -325,8 +311,8 @@
           </div>
           <div class="platform-card-body" id="vintedBody">
             <div class="platform-features">
-              <span class="feature-tag">🏷️ Listings</span><span class="feature-tag">📸 Photos</span>
-              <span class="feature-tag">👤 Profile</span><span class="feature-tag info-tag">ℹ️ No order data</span>
+              <span class="feature-tag">Listings</span><span class="feature-tag">Photos</span>
+              <span class="feature-tag">Profile</span><span class="feature-tag info-tag">No order data</span>
             </div>
             <div class="platform-auth">
               <input type="url" id="vintedUrl" placeholder="https://www.vinted.co.uk/member/12345-username" />
@@ -530,16 +516,12 @@
           <div class="success-ring ring2"></div>
           <div class="success-checkmark">
             <svg viewBox="0 0 52 52" fill="none">
-              <circle cx="26" cy="26" r="25" stroke="url(#sg)" stroke-width="2"/>
-              <path d="M14 26l8 8 16-16" stroke="url(#sg2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              <defs>
-                <linearGradient id="sg" x1="1" y1="1" x2="51" y2="51" gradientUnits="userSpaceOnUse"><stop stop-color="#a855f7"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
-                <linearGradient id="sg2" x1="14" y1="18" x2="38" y2="34" gradientUnits="userSpaceOnUse"><stop stop-color="#a855f7"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
-              </defs>
+              <circle cx="26" cy="26" r="25" fill="#FFC91D"/>
+              <path d="M14 26l8 8 16-16" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
         </div>
-        <h2 class="success-title">You're all set! 🎉</h2>
+        <h2 class="success-title">You're all set</h2>
         <p class="success-sub">Your Fleek profile is live — here's what we learned and the stock we'd source for you.</p>
 
         <div class="success-contributions" id="successContributions"></div>
@@ -571,7 +553,7 @@
       </div>
       <div class="modal-body">
         <div class="help-item"><div class="help-icon">✉️</div><div><strong>Email verification</strong><p>Check your inbox for the Fleek verification email. Click the button inside it to unlock data import. The preview card on the page simulates this for demo purposes.</p></div></div>
-        <div class="help-item"><div class="help-icon">🔗</div><div><strong>Connecting eBay / Shopify</strong><p>You'll be redirected to OAuth. In demo mode, it simulates the connection without real credentials.</p></div></div>
+        <div class="help-item"><div class="help-icon">🔗</div><div><strong>Connecting eBay / Shopify</strong><p>You'll be redirected to OAuth. Type your store name and approve the app on Shopify's consent screen. In the demo environment, enter "mock" as the store name.</p></div></div>
         <div class="help-item"><div class="help-icon">🎙️</div><div><strong>Voice note</strong><p>Requires microphone permission. Your browser may ask for it when you press Record.</p></div></div>
         <div class="help-item"><div class="help-icon">📊</div><div><strong>Spreadsheet upload</strong><p>Supports .xlsx, .xls, and .csv files. Use any export from eBay, Shopify, or Vinted.</p></div></div>
         <div class="help-item"><div class="help-icon">📧</div><div><strong>Still stuck?</strong><p>Email <a href="mailto:support@fleek.com" class="link">support@fleek.com</a></p></div></div>

@@ -71,16 +71,19 @@ function updateStepDots(pageIndex) {
 // ── PAGE 1: REGISTER ──────────────────────────────────
 async function handleRegister(e) {
   e.preventDefault();
-  state.user.firstName = document.getElementById('firstName').value.trim();
-  state.user.lastName  = document.getElementById('lastName').value.trim();
-  state.user.email     = document.getElementById('email').value.trim();
+  state.user.firstName    = document.getElementById('firstName').value.trim();
+  state.user.lastName     = document.getElementById('lastName').value.trim();
+  state.user.email        = document.getElementById('email').value.trim();
+  state.user.businessName = document.getElementById('businessName')?.value.trim() || '';
+  state.user.sellerType   = document.getElementById('sellerType')?.value || '';
 
   document.getElementById('verifyEmailDisplay').textContent = state.user.email;
-  document.getElementById('emailFirstName').textContent     = state.user.firstName;
+  const firstNameEl = document.getElementById('emailFirstName');
+  if (firstNameEl) firstNameEl.textContent = state.user.firstName;
 
   const btn = document.getElementById('registerBtn');
   btn.disabled = true;
-  btn.textContent = 'Sending verification email…';
+  btn.textContent = 'Creating your account…';
 
   try {
     const res = await fetch(`${EMAIL_API}/api/send-verification`, {
@@ -90,14 +93,14 @@ async function handleRegister(e) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to send email');
-    showToast(`Verification email sent to ${state.user.email} 📬`, 'success');
+    showToast(`Verification email sent to ${state.user.email}`, 'success');
   } catch (err) {
     console.warn('[FleekCompanion] Email server unavailable:', err.message);
-    showToast('Email server offline — using demo mode below', 'info');
+    showToast('Email service offline — use the demo verification link below', 'info');
   }
 
   btn.disabled = false;
-  btn.innerHTML = 'Create account &amp; send verification <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  btn.innerHTML = 'Create account <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
   goToPage(2);
   startVerificationPolling();
 }
@@ -155,7 +158,7 @@ function markEmailVerified() {
     const icon = vstep3.querySelector('.vstep-icon');
     if (icon) icon.textContent = '✓';
     const label = vstep3.querySelector('span:last-child');
-    if (label) label.textContent = 'Import authority granted ✓';
+    if (label) label.textContent = 'Store import unlocked';
   }
 
   const banner = document.getElementById('verifySuccessBanner');
@@ -170,7 +173,7 @@ function markEmailVerified() {
   // If we're not on the verify page yet, navigate there
   if (state.currentPage !== 2) goToPage(2);
 
-  showToast('✅ Email verified! Import authority granted 🔓', 'success');
+  showToast('Email verified — store import unlocked', 'success');
 }
 
 // Fallback: still allow demo simulation if server is offline
@@ -607,7 +610,11 @@ async function confirmAndFinish() {
   const form = new FormData();
   if (hasShopify)      form.append('shopify_shop', state.shopifyDomain);
   if (state.sheetFile) form.append('file', state.sheetFile);
-  if (state.prefsText.trim()) form.append('description', state.prefsText.trim());
+  const descParts = [];
+  if (state.user.businessName) descParts.push(`Shop name: ${state.user.businessName}.`);
+  if (state.user.sellerType)   descParts.push(`Sells: ${state.user.sellerType}.`);
+  if (state.prefsText.trim())  descParts.push(state.prefsText.trim());
+  if (descParts.length) form.append('description', descParts.join(' '));
 
   let onboard;
   try {
@@ -625,7 +632,7 @@ async function confirmAndFinish() {
   renderProfileSummary(onboard.profile);
   renderContributions();
   goToPage(5);
-  showToast('Profile built! Finding stock for you… 🔎', 'success');
+  showToast('Profile built — matching Fleek inventory to your shop', 'success');
   loadRecommendations();
 }
 
@@ -659,10 +666,10 @@ function renderProfileSummary(profile) {
   if (!el) return;
   const band = profile.price_band;
   const chips = [
-    ...profile.aesthetic.map(a => `<div class="profile-chip chip-aesthetic">✨ ${a}</div>`),
-    `<div class="profile-chip chip-band">💷 £${Math.round(band.min)}–£${Math.round(band.max)} · median £${Math.round(band.median)}</div>`,
-    ...profile.saturation.gaps.map(g => `<div class="profile-chip chip-gap">🧩 gap: ${g}</div>`),
-    ...profile.saturation.oversupplied.map(o => `<div class="profile-chip chip-over">📦 plenty of: ${o}</div>`),
+    ...profile.aesthetic.map(a => `<div class="profile-chip chip-aesthetic">${a}</div>`),
+    `<div class="profile-chip chip-band">£${Math.round(band.min)}–£${Math.round(band.max)} · median £${Math.round(band.median)}</div>`,
+    ...profile.saturation.gaps.map(g => `<div class="profile-chip chip-gap">Gap: ${g}</div>`),
+    ...profile.saturation.oversupplied.map(o => `<div class="profile-chip chip-over">Well stocked: ${o}</div>`),
   ];
   el.innerHTML = `<h3 class="recs-heading">Your shop's DNA</h3><div class="profile-chips">${chips.join('')}</div>`;
 }
@@ -701,12 +708,12 @@ function renderBundle(b) {
       <div class="bundle-body">
         <div class="bundle-title">${b.items.length} pieces · ${cats}</div>
         <div class="bundle-stats">
-          <span>💰 £${b.total_cost} cost</span>
-          <span>📈 ${b.est_margin}× est. margin</span>
-          <span>⚡ ~${b.est_clear_days}d to clear</span>
+          <span>£${b.total_cost} bundle cost</span>
+          <span>${b.est_margin}× est. margin</span>
+          <span>~${b.est_clear_days} days to clear</span>
         </div>
         <p class="bundle-rationale">${b.rationale}</p>
-        <button class="btn-secondary bundle-btn" onclick="showToast('Added supplier bundle ${b.supplier_id} to your Fleek cart 🛒','success')">Add bundle to cart</button>
+        <button class="btn-secondary bundle-btn" onclick="showToast('Bundle from supplier ${b.supplier_id} added to your Fleek cart','success')">Add bundle to cart</button>
       </div>
     </div>`;
 }
