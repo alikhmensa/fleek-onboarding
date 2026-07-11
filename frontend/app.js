@@ -417,6 +417,7 @@ async function confirmAndFinish() {
   goToPage(4);
   showToast('Profile built — matching Fleek inventory to your shop', 'success');
   loadRecommendations();
+  loadMarketplace();
 }
 
 function renderContributions() {
@@ -535,6 +536,96 @@ async function fetchWithFallback(url, options, fallback) {
     console.warn('[FleekCompanion] API unavailable – using mock data');
     return fallback;
   }
+}
+
+
+// ── MARKETPLACE HOME ───────────────────────────────────
+const market = { offset: 0, limit: 24, total: 0, category: null, q: null };
+
+function loadMarketplace() {
+  loadCollections();
+  loadProducts();
+}
+
+async function loadCollections() {
+  const row = document.getElementById('collectionRow');
+  if (!row) return;
+  try {
+    const data = await (await fetch(`${API_BASE}/inventory/categories`)).json();
+    row.innerHTML = data.categories.map(c => `
+      <div class="collection-tile" onclick="filterMarketCategory('${c.category}')"
+           style="background-image:url('${c.image_url}')">
+        <span>${c.category}</span>
+      </div>`).join('');
+  } catch { row.innerHTML = ''; }
+}
+
+function filterMarketCategory(cat) {
+  market.category = cat; market.q = null; market.offset = 0;
+  document.getElementById('marketSearch').value = '';
+  loadProducts();
+}
+
+function searchMarket() {
+  const q = document.getElementById('marketSearch').value.trim();
+  market.q = q || null; market.category = null; market.offset = 0;
+  loadProducts();
+}
+
+function clearMarketFilter() {
+  market.category = null; market.q = null; market.offset = 0;
+  document.getElementById('marketSearch').value = '';
+  loadProducts();
+}
+
+async function loadProducts(append = false) {
+  const grid = document.getElementById('productGrid');
+  if (!grid) return;
+  const params = new URLSearchParams({ limit: market.limit, offset: market.offset });
+  if (market.category) params.set('category', market.category);
+  if (market.q) params.set('q', market.q);
+
+  let data;
+  try {
+    data = await (await fetch(`${API_BASE}/inventory?${params}`)).json();
+  } catch { grid.innerHTML = '<p class="recs-empty">Could not load inventory.</p>'; return; }
+
+  market.total = data.total;
+  const cards = data.items.map(productCard).join('');
+  if (append) grid.insertAdjacentHTML('beforeend', cards);
+  else grid.innerHTML = cards || '<p class="recs-empty">Nothing matches that search.</p>';
+
+  const title = market.category ? market.category
+    : market.q ? `Results for "${market.q}"` : 'Latest drops';
+  document.getElementById('gridTitle').textContent = title;
+  document.getElementById('clearFilterBtn').style.display = (market.category || market.q) ? '' : 'none';
+  document.getElementById('loadMoreBtn').style.display =
+    market.offset + market.limit < market.total ? '' : 'none';
+}
+
+function loadMoreProducts() {
+  market.offset += market.limit;
+  loadProducts(true);
+}
+
+function productCard(i) {
+  const discount = Math.round((1 - i.fleek_cost / i.predicted_resale) * 100);
+  return `
+    <div class="product-card">
+      <div class="product-img">
+        <img src="${i.image_url}" alt="${i.title}" loading="lazy" />
+        ${discount >= 40 ? `<span class="disc-badge">${discount}% below resale</span>` : ''}
+      </div>
+      <div class="product-body">
+        <p class="p-title">${i.title}</p>
+        <div class="p-rating"><span class="p-stars">★★★★★</span><span>${i.rating ?? ''}</span></div>
+        <div class="p-price-row">
+          <span class="p-price">£${i.fleek_cost.toFixed(0)}</span>
+          <span class="p-resale">resells ~£${i.predicted_resale.toFixed(0)}</span>
+        </div>
+        <span class="ship-chip">Shipping Inc.</span>
+      </div>
+    </div>`;
 }
 
 // ── INIT ───────────────────────────────────────────────

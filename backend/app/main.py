@@ -188,6 +188,33 @@ def recommendations(
     return RecommendationsResponse(bundles=bundles, relaxations=relaxations)
 
 
+@app.get("/inventory")
+def browse_inventory(
+    category: str | None = Query(default=None),
+    q: str | None = Query(default=None),
+    limit: int = Query(default=24, le=100),
+    offset: int = Query(default=0, ge=0),
+) -> dict:
+    """Marketplace browse for the home page — filterable, paginated."""
+    items = list(inventory().values())
+    if category:
+        items = [i for i in items if i.category.lower() == category.lower()]
+    if q:
+        needle = q.lower()
+        items = [i for i in items if needle in f"{i.title} {i.brand} {i.category} {i.description}".lower()]
+    return {"total": len(items), "items": [i.model_dump() for i in items[offset : offset + limit]]}
+
+
+@app.get("/inventory/categories")
+def inventory_categories() -> dict:
+    """Category tiles for the home page: name, count, cover image."""
+    tiles: dict[str, dict] = {}
+    for item in inventory().values():
+        tile = tiles.setdefault(item.category, {"category": item.category, "count": 0, "image_url": item.image_url})
+        tile["count"] += 1
+    return {"categories": sorted(tiles.values(), key=lambda t: -t["count"])}
+
+
 @app.get("/health")
 def health() -> dict:
     return {"ok": True}

@@ -34,6 +34,7 @@ class InventoryItem(BaseModel):
     predicted_days_to_clear: int
     supplier_id: str
     moq: int
+    rating: float | None = None
 
 
 class Candidate(InventoryItem):
