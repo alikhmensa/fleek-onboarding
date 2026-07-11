@@ -1,6 +1,6 @@
 import os
 import re
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify, redirect, render_template, after_this_request
 from dotenv import load_dotenv
 from integrations import get_integration
 from integrations.oauth import EbayOAuth, ShopifyOAuth
@@ -15,6 +15,19 @@ token_store = {}
 
 ebay_oauth = EbayOAuth()
 shopify_oauth = ShopifyOAuth()
+
+
+@app.after_request
+def add_cors(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response
+
+
+@app.route("/")
+def demo_page():
+    return render_template("demo.html")
 
 
 # ---------------------
@@ -71,6 +84,24 @@ def callback_shopify():
 
     token_store[f"shopify:{shop}"] = {
         "access_token": tokens["access_token"],
+        "shop_domain": shop,
+    }
+    return jsonify({"status": "connected", "platform": "shopify", "shop": shop})
+
+
+# ---------------------
+# Shopify: Direct token connect (for dev stores with custom app tokens)
+# ---------------------
+
+@app.route("/connect/shopify/direct", methods=["POST"])
+def connect_shopify_direct():
+    data = request.get_json()
+    shop = data.get("shop")
+    token = data.get("token")
+    if not shop or not token:
+        return jsonify({"error": "Provide 'shop' and 'token'"}), 400
+    token_store[f"shopify:{shop}"] = {
+        "access_token": token,
         "shop_domain": shop,
     }
     return jsonify({"status": "connected", "platform": "shopify", "shop": shop})
