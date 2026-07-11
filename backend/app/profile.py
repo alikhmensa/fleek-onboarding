@@ -83,6 +83,72 @@ def _heuristic_taste(aggregate: dict) -> dict:
     }
 
 
+NO_ORDERS_PROMPT = """A secondhand-clothing reseller is joining Fleek with NO sales
+history — only their own description of their shop:
+
+"{description}"
+
+Infer their profile. For price_band, estimate realistic GBP resale prices from any
+clues in the description (price mentions, brands, market segment); if there are no
+clues, use a typical independent-reseller band around £20-70.
+
+Return aesthetic (2-5 style tags), saturation (oversupplied: what they say they have
+plenty of, may be empty; gaps: 2-4 categories they want or lack), and price_band
+(min/median/max in GBP).
+"""
+
+NO_ORDERS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        **RESPONSE_SCHEMA["properties"],
+        "price_band": {
+            "type": "object",
+            "properties": {
+                "min": {"type": "number"},
+                "median": {"type": "number"},
+                "max": {"type": "number"},
+            },
+            "required": ["min", "median", "max"],
+        },
+    },
+    "required": ["aesthetic", "saturation", "price_band"],
+}
+
+
+def build_profile_from_description(
+    description: str, budget: float | None, margin_multiple: float
+) -> SellerProfile:
+    """Description/voice-only onboarding — no orders, the LLM estimates the band."""
+    import json
+
+    try:
+        from google.genai import types
+
+        resp = genai_client().models.generate_content(
+            model=LLM_MODEL,
+            contents=NO_ORDERS_PROMPT.format(description=description),
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=NO_ORDERS_SCHEMA,
+            ),
+        )
+        taste = json.loads(resp.text)
+        band = PriceBand(currency="GBP", **{k: round(float(v), 0) for k, v in taste["price_band"].items()})
+    except Exception:
+        log.exception("description-only profile LLM call failed — using defaults")
+        taste = _heuristic_taste({})
+        band = PriceBand(min=20, median=40, max=70, currency="GBP")
+    if budget is None:
+        budget = round(min(max(band.median * 10, 200), 2000), 0)  # ~a bundle-sized restock
+    return SellerProfile(
+        aesthetic=taste["aesthetic"],
+        price_band=band,
+        saturation=Saturation(**taste["saturation"]),
+        assumed_margin_multiple=margin_multiple,
+        budget=budget,
+    )
+
+
 def build_profile(
     aggregate: dict,
     price_band: PriceBand,

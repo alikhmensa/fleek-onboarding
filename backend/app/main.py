@@ -32,7 +32,7 @@ from .ingest import (
     parse_orders,
     shopify_orders_to_df,
 )
-from .profile import build_profile
+from .profile import build_profile, build_profile_from_description
 from .rank import rank
 from .rationale import write_rationales
 from .schemas import InventoryItem, OnboardResponse, RecommendationsResponse
@@ -160,19 +160,26 @@ async def onboard(
             raise HTTPException(status_code=422, detail=str(e))
 
     frames = [f for f in frames if not f.empty]
-    if not frames:
-        raise HTTPException(status_code=422, detail="provide a connected shopify_shop and/or an orders file")
-    df = pd.concat(frames, ignore_index=True)
+    if not frames and not description:
+        raise HTTPException(
+            status_code=422,
+            detail="provide a connected shop, an orders file, or a description/voice note of your shop",
+        )
 
-    price_band = compute_price_band(df)
-    if budget is None:
-        budget = infer_budget(df, margin_multiple)
-    profile = build_profile(
-        aggregate_for_llm(df), price_band, budget, margin_multiple,
-        description=description, active_listings=active_listings or None,
-    )
-    profile.stats = compute_stats(df)
-    profile.stats.active_listings = len(active_listings)
+    if frames:
+        df = pd.concat(frames, ignore_index=True)
+        price_band = compute_price_band(df)
+        if budget is None:
+            budget = infer_budget(df, margin_multiple)
+        profile = build_profile(
+            aggregate_for_llm(df), price_band, budget, margin_multiple,
+            description=description, active_listings=active_listings or None,
+        )
+        profile.stats = compute_stats(df)
+        profile.stats.active_listings = len(active_listings)
+    else:
+        # words-only onboarding: profile built purely from the description/voice
+        profile = build_profile_from_description(description, budget, margin_multiple)
 
     seller_id = storage.new_seller_id()
     storage.save_profile(seller_id, profile)

@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────
 // FLEEK COMPANION – app.js  (v3)
-// Pages: 0=welcome 1=register 2=connect 3=enrich 4=success
+// Pages: 0=welcome 1=register 2=about-shop 3=connect(optional) 4=home
 // API: fleek-onboarding/backend (FastAPI) @ localhost:8000 — same origin when
 //      the backend serves this folder at http://localhost:8000/
 // ─────────────────────────────────────────────────────
@@ -10,8 +10,8 @@ const API_BASE    = window.location.port === '8000' ? '' : 'http://localhost:800
 const PAGES = [
   'page-welcome',
   'page-register',
-  'page-connect',
-  'page-enrich',
+  'page-enrich',    // tell us about your shop (words/voice) — first
+  'page-connect',   // then sales data, optional
   'page-success',
 ];
 
@@ -323,12 +323,13 @@ async function startImportAndProceed() {
   // Update enrich page chip
   const sources = connectedList.map(p => p.charAt(0).toUpperCase() + p.slice(1));
   if (state.sheetFile) sources.push('your spreadsheet');
-  document.getElementById('importSummaryText').textContent =
+  const summaryEl = document.getElementById('importSummaryText');
+  if (summaryEl) summaryEl.textContent =
     `${totalOrders} orders & ${totalItems} listings from ${sources.join(' + ') || 'your data'}` +
     (state.sheetFile ? ' (spreadsheet merges at the final step)' : '');
 
-  showToast(connectedList.length ? `✓ Imported ${totalOrders} orders` : '✓ Spreadsheet ready — it merges when you complete your profile', 'success');
-  goToPage(3); // enrich page
+  showToast(connectedList.length ? `✓ Imported ${totalOrders} orders` : '✓ Spreadsheet ready', 'success');
+  confirmAndFinish();
 }
 
 // ── PAGE 4: ENRICH ─────────────────────────────────────
@@ -494,12 +495,12 @@ function insertSuggestion(prefix) {
 // ── PAGE 5: SUCCESS ─────────────────────────────────────
 async function confirmAndFinish() {
   const hasShopify = state.connectedPlatforms.shopify && state.shopifyDomain;
-  if (!hasShopify && !state.sheetFile) {
-    showToast('Connect Shopify or upload a spreadsheet first — we need some sales history', 'error');
+  if (!hasShopify && !state.sheetFile && !state.prefsText.trim() && !state.voiceBlob) {
+    showToast('Tell us about your shop, connect a store or upload a spreadsheet first', 'error');
     return;
   }
 
-  const btn = document.getElementById('finishBtn') || document.querySelector('#page-enrich .btn-primary');
+  const btn = document.getElementById('importBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Building your profile…'; }
 
   // The real onboarding call: every source the user gave us, in one request
@@ -520,7 +521,7 @@ async function confirmAndFinish() {
     onboard = await res.json();
   } catch (err) {
     showToast('Onboarding failed: ' + err.message, 'error');
-    if (btn) { btn.disabled = false; btn.textContent = 'Complete profile'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Import & finish'; }
     return;
   }
   state.sellerId = onboard.seller_id;

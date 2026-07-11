@@ -490,3 +490,5 @@ code{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padd
 .pr-footer{display:flex;justify-content:flex-end;margin-top:18px;}
 .btn-logout{display:inline-flex;align-items:center;gap:8px;font-size:0.85rem;font-weight:700;color:var(--red);border:1.5px solid rgba(217,45,32,0.35);border-radius:var(--radius-sm);padding:9px 18px;background:#fff;transition:var(--transition);}
 .btn-logout:hover{background:rgba(217,45,32,0.06);border-color:var(--red);}
+
+.optional-tag{font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;background:var(--bg2);border:1px solid var(--border-h);color:var(--text3);border-radius:4px;padding:3px 8px;vertical-align:middle;margin-left:8px;}

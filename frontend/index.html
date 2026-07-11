@@ -184,8 +184,8 @@
     <section class="page" id="page-connect">
       <div class="page-content connect-page">
         <div class="form-header">
-          <h2>Add your sales history</h2>
-          <p>Connect your store or upload an export — this is what personalises your sourcing.</p>
+          <h2>Add your sales history <span class="optional-tag">optional</span></h2>
+          <p>Connect your store or upload an export for sharper picks — or skip and we'll go on your words alone.</p>
         </div>
 
         <!-- Shopify -->
@@ -307,9 +307,9 @@
         </div>
 
         <div class="connect-footer">
-          <p class="skip-note">Connect a store or upload a spreadsheet to continue</p>
+          <button class="btn-ghost" onclick="confirmAndFinish()">Skip — build my profile from my description</button>
           <button class="btn-primary" id="importBtn" onclick="startImportAndProceed()" disabled>
-            Import &amp; continue
+            Import &amp; finish
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
         </div>
@@ -321,17 +321,7 @@
       <div class="page-content enrich-page">
         <div class="form-header">
           <h2>Tell us about your shop</h2>
-          <p>Optional — but a sentence or two sharpens your recommendations.</p>
-        </div>
-
-        <!-- IMPORTED SUMMARY CHIP -->
-        <div class="import-summary-chip" id="importSummaryChip">
-          <div class="chip-icon">📦</div>
-          <div class="chip-text">
-            <span id="importSummaryText">Your sales history builds your seller profile</span>
-            <span class="chip-sub">Imported orders and listings are used automatically</span>
-          </div>
-          <div class="chip-check">✓</div>
+          <p>Describe it or record it — we can build your whole profile from your own words.</p>
         </div>
 
         <!-- About your shop: type it or say it -->
@@ -365,9 +355,9 @@
         </div>
 
         <div class="enrich-footer">
-          <p class="enrich-note">Both optional — you can finish with just your imported history</p>
-          <button class="btn-primary" id="finishBtn" onclick="confirmAndFinish()">
-            Complete profile
+          <p class="enrich-note">Next: connect your store or upload orders for even sharper picks — optional</p>
+          <button class="btn-primary" id="finishBtn" onclick="goToPage(3)">
+            Continue
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
         </div>
