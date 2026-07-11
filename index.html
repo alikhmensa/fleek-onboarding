@@ -40,7 +40,50 @@
         <div class="step-dot" data-step="4"><span>5</span></div>
       </div>
 
-      <button class="btn-ghost" id="helpBtn">Need help?</button>
+      <div class="nav-actions">
+        <button class="btn-ghost" id="helpBtn">Need help?</button>
+        <div class="profile-menu-wrap" id="profileMenuWrap">
+          <button class="profile-icon-btn" id="profileBtn" aria-label="Profile Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="dropdown-header">
+              <strong id="pdName">Guest</strong>
+              <span id="pdEmail">Not signed in</span>
+            </div>
+            
+            <div class="dropdown-section">
+              <div class="dropdown-item has-sub">
+                <div class="di-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Edit</div>
+                <div class="di-arrow">›</div>
+              </div>
+              <div class="dropdown-sub-menu">
+                <div class="dropdown-item sub-item">Personal Info</div>
+                <div class="dropdown-item sub-item">Store Connections</div>
+                <div class="dropdown-item sub-item">Preferences</div>
+              </div>
+            </div>
+
+            <div class="dropdown-section">
+              <div class="dropdown-item has-sub">
+                <div class="di-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Security</div>
+                <div class="di-arrow">›</div>
+              </div>
+              <div class="dropdown-sub-menu">
+                <div class="dropdown-item sub-item">Change Password</div>
+                <div class="dropdown-item sub-item">Two-Factor Auth</div>
+                <div class="dropdown-item sub-item">Active Sessions</div>
+              </div>
+            </div>
+
+            <div class="dropdown-divider"></div>
+            
+            <div class="dropdown-item danger" onclick="location.reload()">
+              <div class="di-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Log out</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -545,11 +588,54 @@
         <div class="success-contributions" id="successContributions"></div>
 
         <div class="success-actions">
-          <button class="btn-primary" onclick="showToast('Opening Fleek dashboard…','info')">
+          <button class="btn-primary" onclick="goToPersonaPage()">
             Go to my dashboard
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
         </div>
+      </div>
+    </section>
+
+    <!-- ─── PAGE 6: PERSONA (FLEEK DASHBOARD) ─── -->
+    <section class="page" id="page-persona">
+      <div class="page-content persona-page">
+        
+        <div class="persona-hero">
+          <div class="persona-avatar" id="personaAvatar">A</div>
+          <div class="persona-info">
+            <h2 id="personaNameTitle">Your Fleek Persona</h2>
+            <p id="personaSubtitle">Based on your imported data and preferences, we've built a unique profile for you.</p>
+            <div class="persona-tags" id="personaTags">
+              <!-- Tags injected via JS -->
+            </div>
+          </div>
+        </div>
+
+        <div class="persona-stats">
+          <div class="stat-card">
+            <div class="stat-value" id="statOrders">0</div>
+            <div class="stat-label">Past Orders Analyzed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statItems">0</div>
+            <div class="stat-label">Listings Connected</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statPlatforms">0</div>
+            <div class="stat-label">Stores Linked</div>
+          </div>
+        </div>
+
+        <div class="recommended-section">
+          <div class="recommended-header">
+            <h3>Recommended Fleek Bundles</h3>
+            <p>Curated specifically for your business model and target buyers</p>
+          </div>
+          <div class="recommended-grid" id="recommendedGrid">
+            <!-- Listings injected via JS -->
+          </div>
+        </div>
+
       </div>
     </section>
 

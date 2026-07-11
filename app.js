@@ -15,6 +15,7 @@ const PAGES = [
   'page-connect',
   'page-enrich',
   'page-success',
+  'page-persona',
 ];
 
 // ── App State ──────────────────────────────────────────
@@ -26,6 +27,7 @@ const state = {
   shopifyDomain: null,
   vintedSellerId: null,
   importedData: { orders: 0, items: 0, platforms: [] },
+  rawImportData: null,
 
   // Enrich
   images: [],           // { file, dataUrl }
@@ -74,6 +76,11 @@ async function handleRegister(e) {
 
   document.getElementById('verifyEmailDisplay').textContent = state.user.email;
   document.getElementById('emailFirstName').textContent     = state.user.firstName;
+  
+  if (document.getElementById('pdName')) {
+    document.getElementById('pdName').textContent = `${state.user.firstName} ${state.user.lastName}`;
+    document.getElementById('pdEmail').textContent = state.user.email;
+  }
 
   const btn = document.getElementById('registerBtn');
   btn.disabled = true;
@@ -313,6 +320,7 @@ async function startImportAndProceed() {
     }
   });
   state.importedData = { orders: totalOrders, items: totalItems, platforms: connectedList };
+  state.rawImportData = data;
 
   fill.style.width = '100%';
   label.textContent = `Import complete — ${totalOrders} orders, ${totalItems} listings`;
@@ -593,6 +601,86 @@ function confirmAndFinish() {
   showToast('Profile complete! 🎉', 'success');
 }
 
+// ── PAGE 6: PERSONA ────────────────────────────────────
+function goToPersonaPage() {
+  // Update Header info
+  const name = state.user.firstName || 'Seller';
+  document.getElementById('personaAvatar').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('personaNameTitle').textContent = `Welcome, ${name}! Here is your Fleek Persona`;
+
+  // Update Stats
+  document.getElementById('statOrders').textContent = state.importedData.orders;
+  document.getElementById('statItems').textContent = state.importedData.items;
+  document.getElementById('statPlatforms').textContent = state.importedData.platforms.length;
+
+  // Extract brands from raw data to create tags and recommendations
+  const allBrands = [];
+  if (state.rawImportData) {
+    ['ebay', 'shopify', 'vinted'].forEach(p => {
+      const items = (state.rawImportData[p] && state.rawImportData[p].items) || [];
+      items.forEach(item => {
+        if (item.brand) allBrands.push(item.brand);
+      });
+    });
+  }
+  
+  // Also add basic persona tags based on user input
+  const tags = [];
+  const type = document.getElementById('sellerType') ? document.getElementById('sellerType').value : 'mixed';
+  if (type === 'fashion') tags.push('👗 Fashion Specialist');
+  else if (type === 'accessories') tags.push('👜 Accessories Expert');
+  else tags.push('🔥 Multi-category Seller');
+
+  // Add top brands as tags
+  const brandCounts = allBrands.reduce((acc, brand) => {
+    acc[brand] = (acc[brand] || 0) + 1;
+    return acc;
+  }, {});
+  const topBrands = Object.entries(brandCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(e => e[0])
+    .slice(0, 3);
+  
+  topBrands.forEach(b => tags.push(`🏷️ Top Brand: ${b}`));
+  
+  if (state.prefsText.toLowerCase().includes('vintage')) tags.push('⏳ Vintage Lover');
+  if (state.prefsText.toLowerCase().includes('y2k')) tags.push('✨ Y2K Aesthetic');
+
+  document.getElementById('personaTags').innerHTML = tags.map(t => `<span class="persona-tag">${t}</span>`).join('');
+
+  // Generate Recommended Listings based on topBrands
+  const mockListings = [
+    { title: "Wholesale Vintage T-Shirts Bundle", price: "£150", pieces: "50 pieces", img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400&q=80", match: "High" },
+    { title: "Y2K Deadstock Denim Collection", price: "£220", pieces: "20 pieces", img: "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=400&q=80", match: "Very High" },
+    { title: "Premium Outerwear & Jackets", price: "£300", pieces: "15 pieces", img: "https://images.unsplash.com/photo-1551028719-01c1eb562251?auto=format&fit=crop&w=400&q=80", match: "Medium" },
+    { title: "Branded Sportswear Mix", price: "£180", pieces: "30 pieces", img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=400&q=80", match: "High" }
+  ];
+
+  // If specific brands were found, customize titles slightly
+  if (topBrands.length > 0) {
+    mockListings[3].title = `${topBrands[0]} & Sportswear Mix`;
+  }
+
+  document.getElementById('recommendedGrid').innerHTML = mockListings.map(listing => `
+    <div class="recommended-card">
+      <div class="recommended-img" style="background-image: url('${listing.img}')">
+        <span class="recommended-match">${listing.match} Match</span>
+      </div>
+      <div class="recommended-info">
+        <h4>${listing.title}</h4>
+        <div class="recommended-meta">
+          <span class="price">${listing.price}</span>
+          <span class="dot">•</span>
+          <span class="pieces">${listing.pieces}</span>
+        </div>
+        <button class="btn-buy-bundle">View Bundle</button>
+      </div>
+    </div>
+  `).join('');
+
+  goToPage(6);
+}
+
 // ── HELP MODAL ─────────────────────────────────────────
 document.getElementById('helpBtn').addEventListener('click', () =>
   document.getElementById('helpModal').classList.add('open'));
@@ -695,4 +783,40 @@ document.addEventListener('DOMContentLoaded', () => {
     o.style.opacity = '0';
     setTimeout(() => { o.style.transition = 'opacity 1s ease'; o.style.opacity = '0.35'; }, 100);
   });
+
+  // Profile Menu Logic
+  const profileBtn = document.getElementById('profileBtn');
+  const profileMenuWrap = document.getElementById('profileMenuWrap');
+
+  if (profileBtn && profileMenuWrap) {
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileMenuWrap.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!profileMenuWrap.contains(e.target)) {
+        profileMenuWrap.classList.remove('open');
+        document.querySelectorAll('.dropdown-section.open').forEach(el => el.classList.remove('open'));
+      }
+    });
+
+    document.querySelectorAll('.dropdown-item.has-sub').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const section = item.parentElement;
+        const wasOpen = section.classList.contains('open');
+        // close others
+        document.querySelectorAll('.dropdown-section').forEach(s => s.classList.remove('open'));
+        if (!wasOpen) section.classList.add('open');
+      });
+    });
+
+    document.querySelectorAll('.dropdown-sub-menu .sub-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        showToast(`${e.target.textContent.trim()} opened`, 'info');
+        profileMenuWrap.classList.remove('open');
+      });
+    });
+  }
 });
