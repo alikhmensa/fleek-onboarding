@@ -16,8 +16,9 @@ What the pipeline should infer for this seller:
 **⚠ Shiv's seed script creates PRODUCTS ONLY — no orders.** Price band and budget
 come from order history, so the store must also get orders:
 `SHOP_DOMAIN=... SHOPIFY_ADMIN_TOKEN=... python -m scripts.populate_shop` (our
-script backdates paid orders over 10 weeks), or the demo user uploads a spreadsheet
-during onboarding as well.
+script backdates paid orders over 10 weeks), or the demo user uploads
+`data/streetwear_vault_orders.xlsx` during onboarding — same persona, generated
+by `scripts/generate_demo_xlsx.py` (re-run before the demo to freshen dates).
 
 ## The second persona: demo_orders.csv (budget Y2K seller)
 

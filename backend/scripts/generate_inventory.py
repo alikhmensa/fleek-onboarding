@@ -106,6 +106,66 @@ GRAILS = [  # s_08 — deliberately hard to justify economically
     ("Stone Island", "badge overshirt", "hoodies", 110, 200), ("Vivienne Westwood", "orb tee", "tees", 60, 115),
 ]
 
+# Real Unsplash photos, all HTTP-validated and visually checked. Per category:
+# ordered (keyword, photo_id) rules matched against the piece text, then a
+# round-robin fallback pool so repeats stay rare.
+U = "https://images.unsplash.com/photo-{}?w=400&q=70"
+IMAGE_RULES = {
+    "footwear": [
+        ("boot", ["1520639888713-7851133b1ed0", "1605812860427-4024433a70fd", "1603808033192-082d6919d3e1"]),
+        ("chuck|old skool", ["1463100099107-aa0980c362e6", "1494496195158-c3becb4f2475"]),
+        ("samba|gazelle|suede classic", ["1520256862855-398228c41684", "1595950653106-6c9ebd614d3a"]),
+        ("574|550|court", ["1539185441755-769473a23570"]),
+        ("wallabee", ["1543163521-1bf539c55dd2"]),
+    ],
+    "accessories": [
+        ("scarf", ["1520903920243-00d872a2d1c9", "1601924638867-3a6de6b7a500"]),
+        ("cap|hat", ["1521369909029-2afed882baee", "1556306535-0f09a537f0a3"]),
+        ("tote|backpack", ["1553062407-98eeb64c6a62"]),
+        ("bag", ["1584917865442-de89df76afd3", "1548036328-c9fa89d128fa"]),
+    ],
+    "denim": [
+        ("short", ["1591195853828-11db59a44f6b"]),
+        ("jacket|shirt", ["1608063615781-e2ef8c73d114"]),
+    ],
+    "outerwear": [
+        ("leather|bomber", ["1520975954732-35dd22299614"]),
+        ("puffer|fleece|shell", ["1611312449408-fcece27cdbb7", "1609803384069-19f3e5a70e75"]),
+    ],
+}
+IMAGE_POOLS = {
+    "knitwear": ["1434389677669-e08b4cac3105", "1596755094514-f87e34085b2c",
+                 "1523381210434-271e8be1f52b", "1562157873-818bc0726f68"],
+    "footwear": ["1600185365926-3a2ce3cdb9eb", "1515955656352-a1fa3ffcd111",
+                 "1514989940723-e8e51635b782", "1542291026-7eec264c27ff", "1544441893-675973e31985"],
+    "denim": ["1582552938357-32b906df40cb", "1541099649105-f69ad21f3246",
+              "1542272604-787c3835535d", "1565084888279-aca607ecce0c"],
+    "sportswear": ["1552902865-b72c031ac5ea", "1483721310020-03333e577078", "1571945153237-4929e783af4a"],
+    "workwear": ["1591047139829-d91aecb6caea", "1548126032-079a0fb0099d",
+                 "1608063615781-e2ef8c73d114", "1507679799987-c73779587ccf"],
+    "outerwear": ["1539533018447-63fcce2678e3", "1594938298603-c8148c4dae35",
+                  "1591369822096-ffd140ec948f", "1520975954732-35dd22299614"],
+    "hoodies": ["1556821840-3a63f95609a7", "1620799140408-edc6dcb6d633",
+                "1509942774463-acf339cf87d5", "1578681994506-b8f463449011", "1576871337622-98d48d1cf531"],
+    "tees": ["1521572163474-6864f9cf17ab", "1583743814966-8936f5b7be1a",
+             "1576566588028-4147f3842f27", "1562157873-818bc0726f68", "1571945153237-4929e783af4a"],
+    "dresses": ["1583496661160-fb5886a0aaaa", "1577900232427-18219b9166a0",
+                "1595777457583-95e059d581b8", "1572804013309-59a88b7e92f1",
+                "1496747611176-843222e1e57c", "1539008835657-9e8e9680c956"],
+    "accessories": ["1584917865442-de89df76afd3", "1548036328-c9fa89d128fa",
+                    "1521369909029-2afed882baee", "1520903920243-00d872a2d1c9"],
+}
+
+
+def image_for(category: str, piece: str, index: int) -> str:
+    import re
+    for pattern, photos in IMAGE_RULES.get(category, []):
+        if re.search(pattern, piece.lower()):
+            return U.format(photos[index % len(photos)])
+    pool = IMAGE_POOLS[category]
+    return U.format(pool[index % len(pool)])
+
+
 COLOURS = ["black", "cream", "forest green", "burgundy", "navy", "washed grey", "chocolate", "ecru",
            "faded red", "sky blue", "moss", "lilac", "sand", "charcoal", "off-white", "rust"]
 CONDITIONS = ["A", "A", "B", "B", "B", "C"]
@@ -144,7 +204,7 @@ def main() -> None:
                 "title": title[0].upper() + title[1:],
                 "description": f"{era} {brand} {piece} in {colour}. Authentic secondhand, condition grade "
                                f"{random.choice(CONDITIONS)}. Style: {style}.",
-                "image_url": f"https://picsum.photos/seed/{iid}/400/500",
+                "image_url": image_for(category, piece, k),
                 "brand": brand, "category": category,
                 "condition_grade": random.choice(CONDITIONS),
                 "fleek_cost": cost, "predicted_resale": float(resale),
@@ -160,7 +220,7 @@ def main() -> None:
             "id": iid, "title": f"{brand} {piece}",
             "description": f"Grail-tier {brand} {piece}. Archive piece, condition grade A. "
                            f"Style: hyped designer archive, collector streetwear.",
-            "image_url": f"https://picsum.photos/seed/{iid}/400/500",
+            "image_url": image_for(category, piece, n),
             "brand": brand, "category": category, "condition_grade": "A",
             "fleek_cost": float(cost), "predicted_resale": float(resale),
             "predicted_days_to_clear": random.randint(20, 45),
