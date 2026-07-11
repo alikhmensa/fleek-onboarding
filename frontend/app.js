@@ -28,7 +28,6 @@ const state = {
   profile: null,         // seller profile from the backend
 
   // Enrich
-  images: [],           // { file, dataUrl }
   sheetFile: null,      // File
   voiceBlob: null,      // Blob
   voiceDuration: 0,
@@ -226,52 +225,6 @@ function handleDragOver(e) {
 function handleDragLeave(e) {
   e.currentTarget.classList.remove('drag-over');
 }
-function handleImageDrop(e) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('drag-over');
-  const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
-  processImages(files);
-}
-function handleImageSelect(e) {
-  processImages([...e.target.files]);
-  e.target.value = '';
-}
-function processImages(files) {
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      state.images.push({ file, dataUrl: ev.target.result });
-      renderImagePreviews();
-    };
-    reader.readAsDataURL(file);
-  });
-}
-function renderImagePreviews() {
-  const grid = document.getElementById('imagePreviewGrid');
-  const inner = document.querySelector('.drop-zone-inner');
-
-  if (state.images.length > 0) {
-    inner.style.display = 'none';
-  }
-
-  grid.innerHTML = state.images.map((img, i) => `
-    <div class="image-thumb" id="thumb-${i}">
-      <img src="${img.dataUrl}" alt="upload ${i + 1}" />
-      <div class="image-thumb-remove" onclick="removeImage(${i})">✕</div>
-    </div>
-  `).join('');
-
-  document.getElementById('imageCount').textContent =
-    `${state.images.length} uploaded`;
-}
-function removeImage(index) {
-  state.images.splice(index, 1);
-  if (state.images.length === 0) {
-    document.querySelector('.drop-zone-inner').style.display = 'flex';
-  }
-  renderImagePreviews();
-}
-
 // --- Spreadsheet ---
 function handleSheetDrop(e) {
   e.preventDefault();
@@ -306,17 +259,6 @@ function removeSheet() {
 }
 
 // --- Voice recorder ---
-function initWaveformBars() {
-  const container = document.getElementById('waveformBars');
-  container.innerHTML = '';
-  for (let i = 0; i < 40; i++) {
-    const bar = document.createElement('div');
-    bar.className = 'waveform-bar';
-    bar.style.height = '4px';
-    container.appendChild(bar);
-  }
-}
-
 async function toggleRecording() {
   if (state.isRecording) {
     stopRecording();
@@ -345,9 +287,7 @@ async function startRecording() {
       document.getElementById('voiceAudio').src = url;
       document.getElementById('voicePlayBtn').style.display   = 'flex';
       document.getElementById('voiceDeleteBtn').style.display = 'flex';
-      document.getElementById('voiceStatus').textContent = formatTime(state.recordingSeconds) + ' recorded';
-      document.getElementById('voiceIdlePrompt').style.display = 'none';
-
+      
       // Stop all tracks
       stream.getTracks().forEach(t => t.stop());
       showToast('Voice note saved!', 'success');
@@ -356,7 +296,6 @@ async function startRecording() {
     state.mediaRecorder.start(100);
 
     // Timer
-    document.getElementById('voiceIdlePrompt').style.display = 'none';
     const btn = document.getElementById('recordBtn');
     btn.classList.add('recording');
     document.getElementById('recordBtnLabel').textContent = 'Stop recording';
@@ -364,12 +303,8 @@ async function startRecording() {
     state.recordingInterval = setInterval(() => {
       state.recordingSeconds++;
       document.getElementById('voiceTimer').textContent = formatTime(state.recordingSeconds);
-      animateWaveformBars();
     }, 1000);
 
-    // Start bar animation immediately
-    initWaveformBars();
-    animateWaveformBars();
   } catch (err) {
     showToast('Microphone access denied. Please allow mic in browser settings.', 'error');
     state.isRecording = false;
@@ -422,10 +357,7 @@ function deleteVoiceNote() {
   document.getElementById('voicePlayBtn').style.display   = 'none';
   document.getElementById('voiceDeleteBtn').style.display = 'none';
   document.getElementById('voiceTimer').textContent        = '0:00';
-  document.getElementById('voiceStatus').textContent       = 'Not recorded';
   document.getElementById('recordBtnLabel').textContent    = 'Start recording';
-  document.getElementById('voiceIdlePrompt').style.display = 'flex';
-  initWaveformBars();
   showToast('Voice note deleted', 'info');
 }
 
@@ -497,8 +429,6 @@ function renderContributions() {
   const contributions = [];
   if (state.importedData.orders > 0)
     contributions.push({ icon: '📦', label: `${state.importedData.orders} orders imported` });
-  if (state.images.length > 0)
-    contributions.push({ icon: '📸', label: `${state.images.length} image${state.images.length > 1 ? 's' : ''}` });
   if (state.voiceBlob)
     contributions.push({ icon: '🎙️', label: `Voice note (${formatTime(state.voiceDuration)})` });
   if (state.sheetFile)
@@ -614,7 +544,6 @@ async function fetchWithFallback(url, options, fallback) {
 
 // ── INIT ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  initWaveformBars();
   // Animate hero orbs
   document.querySelectorAll('.hero-orb').forEach(o => {
     o.style.opacity = '0';
