@@ -249,14 +249,15 @@
 
         </div>
 
-        <!-- Import progress (shown while fetching) -->
-        <div class="import-progress-bar" id="importProgress" style="display:none">
-          <div class="import-progress-header">
-            <div class="import-progress-spinner"></div>
-            <span id="importProgressLabel">Importing order history…</span>
+        <!-- Import progress overlay (shown while fetching) -->
+        <div class="import-overlay" id="importProgress" style="display:none">
+          <div class="import-modal">
+            <img src="assets/fleek-logo.png" alt="FLEEK" class="import-logo" />
+            <h3>Importing your sales history</h3>
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+            <p class="import-label" id="importProgressLabel">Connecting…</p>
+            <p class="import-progress-sub" id="importProgressSub">This only takes a few seconds</p>
           </div>
-          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-          <p class="import-progress-sub" id="importProgressSub">Securely fetching your data from connected stores</p>
         </div>
 
         <div class="connect-footer">

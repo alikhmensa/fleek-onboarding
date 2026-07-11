@@ -42,7 +42,7 @@ h1,h2,h3{letter-spacing:-0.01em;}
 
 /* ─── NAVBAR ─── */
 .navbar{position:fixed;top:0;left:0;right:0;z-index:100;background:#fff;border-bottom:1px solid var(--border);height:64px;}
-.nav-inner{max-width:1100px;margin:0 auto;height:100%;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+.nav-inner{max-width:none;margin:0;height:100%;padding:0 40px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
 .nav-brand{display:flex;align-items:center;gap:10px;}
 .brand-logo{height:30px;width:auto;display:block;}
 .brand-tag{font-size:0.68rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;background:var(--black);color:var(--yellow);padding:3px 8px;border-radius:4px;}
@@ -59,7 +59,7 @@ h1,h2,h3{letter-spacing:-0.01em;}
 .page{display:none;min-height:100vh;padding-top:64px;animation:fadeIn 0.4s ease;}
 .page.active{display:flex;align-items:center;justify-content:center;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-.page-content{width:100%;max-width:1100px;margin:0 auto;padding:48px 32px;}
+.page-content{width:100%;max-width:1400px;margin:0 auto;padding:48px clamp(24px,4vw,64px);}
 
 /* ─── WELCOME ─── */
 #page-welcome{position:relative;overflow:hidden;background:var(--bg2);}
@@ -71,9 +71,9 @@ h1,h2,h3{letter-spacing:-0.01em;}
 .hero-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:24px;}
 .badge-pill{display:inline-flex;align-items:center;gap:6px;background:var(--black);color:#fff;font-size:0.78rem;font-weight:700;padding:7px 16px;border-radius:var(--radius-pill);letter-spacing:0.02em;}
 .badge-pill .star{color:var(--yellow);}
-.hero-title{font-size:clamp(2rem,6.5vw,3.6rem);font-weight:800;line-height:1.08;letter-spacing:-0.02em;text-transform:uppercase;color:var(--black);}
+.hero-title{font-size:clamp(2rem,5vw,4.4rem);font-weight:800;line-height:1.08;letter-spacing:-0.02em;text-transform:uppercase;color:var(--black);}
 .hero-title .hl{background:linear-gradient(transparent 62%,var(--yellow) 62%);}
-.hero-sub{font-size:1rem;color:var(--text2);max-width:560px;line-height:1.7;font-weight:500;}
+.hero-sub{font-size:clamp(1rem,1.1vw,1.15rem);color:var(--text2);max-width:640px;line-height:1.7;font-weight:500;}
 .hero-platforms{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
 .platform-chip{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-pill);padding:8px 16px;font-size:0.85rem;font-weight:700;transition:var(--transition);box-shadow:var(--shadow);}
 .platform-chip:hover{border-color:var(--black);}
@@ -201,13 +201,16 @@ select option{background:#fff;}
 .connected-name{font-size:0.9rem;font-weight:700;}
 .connected-meta{font-size:0.75rem;color:var(--text3);margin-top:1px;}
 
-/* Import progress */
-.import-progress-bar{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
-.import-progress-header{display:flex;align-items:center;gap:12px;font-size:0.9rem;font-weight:700;}
-.import-progress-spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--black);border-radius:50%;animation:spin 0.9s linear infinite;flex-shrink:0;}
-.progress-track{height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;}
-.progress-fill{height:100%;background:var(--yellow);border-radius:3px;width:0%;transition:width 0.4s ease;}
-.import-progress-sub{font-size:0.78rem;color:var(--text3);}
+/* Import progress — full-screen modal overlay */
+.import-overlay{position:fixed;inset:0;z-index:300;background:rgba(17,17,17,0.55);display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn 0.25s ease;}
+.import-modal{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:40px 36px;width:100%;max-width:460px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;}
+.import-logo{height:26px;width:auto;}
+.import-modal h3{font-size:1.05rem;font-weight:800;text-transform:uppercase;letter-spacing:0.02em;}
+.import-modal .progress-track{width:100%;}
+.import-label{font-size:0.92rem;font-weight:700;color:var(--text);min-height:1.4em;}
+.progress-track{height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--yellow);border-radius:4px;width:0%;transition:width 0.4s ease;}
+.import-progress-sub{font-size:0.8rem;color:var(--text3);}
 
 .connect-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
 .skip-note{font-size:0.8rem;color:var(--text3);}
@@ -329,7 +332,7 @@ select option{background:#fff;}
 code{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:0.8rem;}
 
 /* ── Success page: profile summary + recommendations ── */
-.profile-summary{width:100%;max-width:1100px;margin:28px auto 0;text-align:left;}
+.profile-summary{width:100%;max-width:1400px;margin:28px auto 0;text-align:left;}
 .recs-heading{font-size:1rem;font-weight:800;margin-bottom:14px;color:var(--black);text-transform:uppercase;letter-spacing:0.02em;display:inline-block;background:linear-gradient(transparent 62%,var(--yellow) 62%);}
 .profile-chips{display:flex;flex-wrap:wrap;gap:8px;}
 .profile-chip{padding:8px 14px;border-radius:4px;font-size:0.85rem;font-weight:600;border:1px solid var(--border);background:#fff;box-shadow:var(--shadow);}
@@ -338,7 +341,7 @@ code{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padd
 .chip-over{color:var(--text2);}
 .chip-band{border-color:var(--border-h);}
 
-.recs-section{width:100%;max-width:1100px;margin:30px auto 0;text-align:left;}
+.recs-section{width:100%;max-width:1400px;margin:30px auto 0;text-align:left;}
 .recs-note{font-size:0.85rem;color:var(--amber);margin-bottom:12px;font-weight:600;}
 .recs-empty{color:var(--text2);font-size:0.9rem;}
 .recs-loading{display:flex;align-items:center;gap:12px;color:var(--text2);font-size:0.9rem;padding:20px 0;}
