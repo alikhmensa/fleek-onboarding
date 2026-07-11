@@ -215,13 +215,9 @@ async function connectShopify() {
   // Already connected (token stored server-side)?
   try {
     const st = await (await fetch(`${API_BASE}/shopify/status?shop=${encodeURIComponent(domain)}`)).json();
-    if (st.connected) {
-      setPlatformConnected('shopify');
-      showToast(`Shopify store "${domain}" connected!`, 'success');
-      return;
-    }
-    // Preferred: direct connect via the dev store's admin token (no OAuth dance)
-    if (st.direct_available) {
+    // Preferred: direct connect via the dev store's admin token (no OAuth dance).
+    // Runs even when a token is already stored — re-storing heals a stale/dud one.
+    if (st.direct_available && domain !== 'mock') {
       const res = await fetch(`${API_BASE}/connect/shopify/direct`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -233,6 +229,11 @@ async function connectShopify() {
       document.getElementById('shopifyDomainLabel').textContent = data.shop;
       setPlatformConnected('shopify');
       showToast(`Shopify store "${data.shop}" connected!`, 'success');
+      return;
+    }
+    if (st.connected) {
+      setPlatformConnected('shopify');
+      showToast(`Shopify store "${domain}" connected!`, 'success');
       return;
     }
     if (!st.oauth_configured) {
