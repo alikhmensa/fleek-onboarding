@@ -125,7 +125,9 @@ class ShopifyClient:
                         title=line.get("title", ""),
                         price=float(line.get("price", 0)),
                         currency=order.get("currency", "GBP"),
-                        sold_at=_parse_dt(order.get("created_at")),
+                        # processed_at is the true sale date on imported/backdated
+                        # orders; created_at is just when the record was made
+                        sold_at=_parse_dt(order.get("processed_at") or order.get("created_at")),
                         status=order.get("fulfillment_status") or "unfulfilled",
                     )
                 )
