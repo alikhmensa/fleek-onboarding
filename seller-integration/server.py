@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, redirect
 from dotenv import load_dotenv
 from integrations import get_integration
 from integrations.oauth import EbayOAuth, ShopifyOAuth
+from mock_data import mock_shopify, mock_ebay, mock_vinted
 
 load_dotenv()
 
@@ -63,7 +64,11 @@ def callback_shopify():
     if not code or not shop:
         return jsonify({"error": "Missing code or shop parameter"}), 400
 
-    tokens = shopify_oauth.exchange_code(shop, code)
+    try:
+        tokens = shopify_oauth.exchange_code(shop, code)
+    except Exception as e:
+        return jsonify({"error": f"Token exchange failed: {str(e)}"}), 400
+
     token_store[f"shopify:{shop}"] = {
         "access_token": tokens["access_token"],
         "shop_domain": shop,
@@ -214,5 +219,20 @@ def list_platforms():
     })
 
 
+# ---------------------
+# Mock data (for testing without credentials)
+# ---------------------
+
+MOCK_FNS = {"shopify": mock_shopify, "ebay": mock_ebay, "vinted": mock_vinted}
+
+
+@app.route("/api/mock/<platform>")
+def get_mock_data(platform):
+    fn = MOCK_FNS.get(platform)
+    if not fn:
+        return jsonify({"error": f"No mock data for: {platform}"}), 404
+    return jsonify(fn().model_dump(mode="json"))
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8000)

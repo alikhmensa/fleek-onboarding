@@ -116,13 +116,17 @@ class ShopifyOAuth:
         return secrets.compare_digest(digest, hmac_value)
 
     def exchange_code(self, shop_domain: str, code: str) -> dict:
+        payload = {
+            "client_id": self.api_key,
+            "client_secret": self.api_secret,
+            "code": code,
+        }
         resp = requests.post(
             f"https://{shop_domain}/admin/oauth/access_token",
-            json={
-                "client_id": self.api_key,
-                "client_secret": self.api_secret,
-                "code": code,
-            },
+            data=payload,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
+        if not resp.ok:
+            print(f"Shopify token exchange failed: {resp.status_code} {resp.text}")
         resp.raise_for_status()
         return resp.json()
