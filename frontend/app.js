@@ -392,6 +392,7 @@ async function confirmAndFinish() {
   const form = new FormData();
   if (hasShopify)      form.append('shopify_shop', state.shopifyDomain);
   if (state.sheetFile) form.append('file', state.sheetFile);
+  if (state.voiceBlob) form.append('voice', state.voiceBlob, 'voice-note.webm');
   const descParts = [];
   if (state.user.businessName) descParts.push(`Shop name: ${state.user.businessName}.`);
   if (state.user.sellerType)   descParts.push(`Sells: ${state.user.sellerType}.`);

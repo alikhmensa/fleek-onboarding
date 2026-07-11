@@ -29,6 +29,7 @@ from .rank import rank
 from .rationale import write_rationales
 from .schemas import InventoryItem, OnboardResponse, RecommendationsResponse
 from .search import find_candidates
+from .voice import transcribe as transcribe_voice
 
 logging.basicConfig(level=logging.INFO)
 
@@ -118,15 +119,22 @@ def _fetch_shop_data(shop: str):
 @app.post("/onboard", response_model=OnboardResponse)
 async def onboard(
     file: UploadFile | None = None,
+    voice: UploadFile | None = None,
     shopify_shop: str | None = Form(default=None),
     description: str | None = Form(default=None),
     budget: float | None = Form(default=None),
     margin_multiple: float = Form(default=DEFAULT_MARGIN_MULTIPLE),
 ) -> OnboardResponse:
     """Sources merge: connected Shopify shop and/or an orders file (CSV/Excel),
-    plus an optional free-text shop description. At least one order source required."""
+    plus optional free-text and voice-note descriptions of the shop.
+    At least one order source required."""
     frames = []
     active_listings: list[str] = []
+
+    if voice is not None:
+        transcript = transcribe_voice(await voice.read(), voice.content_type)
+        if transcript:
+            description = f"{description} {transcript}".strip() if description else transcript
 
     if shopify_shop:
         shop_data = _fetch_shop_data(shopify_shop)
