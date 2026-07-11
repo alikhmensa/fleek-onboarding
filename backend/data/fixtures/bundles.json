@@ -1,0 +1,142 @@
+{
+  "bundles": [
+    {
+      "supplier_id": "s_01",
+      "items": [
+        {
+          "id": "i_001",
+          "title": "Chunky cable-knit fisherman jumper, cream",
+          "description": "Unbranded chunky cable-knit fisherman jumper, cream. Authentic secondhand piece, condition grade A. Great for knitwear sections of a vintage/Y2K curated shop.",
+          "image_url": "https://picsum.photos/seed/i_001/400/500",
+          "brand": "Unbranded",
+          "category": "knitwear",
+          "condition_grade": "A",
+          "fleek_cost": 11.0,
+          "predicted_resale": 42.0,
+          "predicted_days_to_clear": 8,
+          "supplier_id": "s_01",
+          "moq": 4,
+          "fit": 0.72,
+          "est_margin": 3.82,
+          "score": 0.61
+        },
+        {
+          "id": "i_002",
+          "title": "90s lambswool crewneck, forest green",
+          "description": "Ralph Lauren 90s lambswool crewneck, forest green. Authentic secondhand piece, condition grade A. Great for knitwear sections of a vintage/Y2K curated shop.",
+          "image_url": "https://picsum.photos/seed/i_002/400/500",
+          "brand": "Ralph Lauren",
+          "category": "knitwear",
+          "condition_grade": "A",
+          "fleek_cost": 14.0,
+          "predicted_resale": 48.0,
+          "predicted_days_to_clear": 7,
+          "supplier_id": "s_01",
+          "moq": 4,
+          "fit": 0.72,
+          "est_margin": 3.43,
+          "score": 0.61
+        },
+        {
+          "id": "i_005",
+          "title": "Y2K zip-up knit cardigan, grey",
+          "description": "Gap y2k zip-up knit cardigan, grey. Authentic secondhand piece, condition grade A. Great for knitwear sections of a vintage/Y2K curated shop.",
+          "image_url": "https://picsum.photos/seed/i_005/400/500",
+          "brand": "Gap",
+          "category": "knitwear",
+          "condition_grade": "A",
+          "fleek_cost": 10.0,
+          "predicted_resale": 34.0,
+          "predicted_days_to_clear": 10,
+          "supplier_id": "s_01",
+          "moq": 4,
+          "fit": 0.72,
+          "est_margin": 3.4,
+          "score": 0.61
+        },
+        {
+          "id": "i_007",
+          "title": "Mohair-blend oversized jumper, lilac",
+          "description": "Unbranded mohair-blend oversized jumper, lilac. Authentic secondhand piece, condition grade A. Great for knitwear sections of a vintage/Y2K curated shop.",
+          "image_url": "https://picsum.photos/seed/i_007/400/500",
+          "brand": "Unbranded",
+          "category": "knitwear",
+          "condition_grade": "A",
+          "fleek_cost": 12.0,
+          "predicted_resale": 40.0,
+          "predicted_days_to_clear": 8,
+          "supplier_id": "s_01",
+          "moq": 4,
+          "fit": 0.72,
+          "est_margin": 3.33,
+          "score": 0.61
+        }
+      ],
+      "total_cost": 47.0,
+      "est_margin": 3.49,
+      "est_clear_days": 10,
+      "rationale": "You've sold out of workwear but stock no knitwear \u2014 this lot fills that gap in your usual \u00a330-50 band."
+    },
+    {
+      "supplier_id": "s_02",
+      "items": [
+        {
+          "id": "i_010",
+          "title": "Sambas classic, black/white",
+          "description": "Adidas sambas classic, black/white. Authentic secondhand piece, condition grade B. Great for footwear sections of a vintage/Y2K curated shop.",
+          "image_url": "https://picsum.photos/seed/i_010/400/500",
+          "brand": "Adidas",
+          "category": "footwear",
+          "condition_grade": "B",
+          "fleek_cost": 18.0,
+          "predicted_resale": 55.0,
+          "predicted_days_to_clear": 8,
+          "supplier_id": "s_02",
+          "moq": 3,
+          "fit": 0.72,
+          "est_margin": 3.06,
+          "score": 0.61
+        },
+        {
+          "id": "i_011",
+          "title": "1460 boots, cherry red",
+          "description": "Dr Martens 1460 boots, cherry red. Authentic secondhand piece, condition grade B. Great for footwear sections of a vintage/Y2K curated shop.",
+          "image_url": "https://picsum.photos/seed/i_011/400/500",
+          "brand": "Dr Martens",
+          "category": "footwear",
+          "condition_grade": "B",
+          "fleek_cost": 16.0,
+          "predicted_resale": 52.0,
+          "predicted_days_to_clear": 10,
+          "supplier_id": "s_02",
+          "moq": 3,
+          "fit": 0.72,
+          "est_margin": 3.25,
+          "score": 0.61
+        },
+        {
+          "id": "i_012",
+          "title": "Chuck 70 hi-top, parchment",
+          "description": "Converse chuck 70 hi-top, parchment. Authentic secondhand piece, condition grade A. Great for footwear sections of a vintage/Y2K curated shop.",
+          "image_url": "https://picsum.photos/seed/i_012/400/500",
+          "brand": "Converse",
+          "category": "footwear",
+          "condition_grade": "A",
+          "fleek_cost": 12.0,
+          "predicted_resale": 38.0,
+          "predicted_days_to_clear": 9,
+          "supplier_id": "s_02",
+          "moq": 3,
+          "fit": 0.72,
+          "est_margin": 3.17,
+          "score": 0.61
+        }
+      ],
+      "total_cost": 46.0,
+      "est_margin": 3.15,
+      "est_clear_days": 10,
+      "rationale": "Footwear is absent from your shop despite your 90s buyer base \u2014 Sambas and Docs clear fast at your price point."
+    }
+  ],
+  "relaxations": []
+}
