@@ -81,8 +81,36 @@ def callback_shopify(request: Request):
     return {"status": "connected", "platform": "shopify", "shop": shop}
 
 
+SHOPIFY_ADMIN_TOKEN = os.getenv("SHOPIFY_ADMIN_TOKEN", "")
+
+
+@app.post("/connect/shopify/direct")
+async def connect_shopify_direct(request: Request):
+    """Connect a Shopify store using the admin token from .env."""
+    data = await request.json()
+    shop = _clean_shop(data.get("shop_domain", ""))
+    if not shop:
+        raise HTTPException(status_code=400, detail="shop_domain is required")
+    if not SHOPIFY_ADMIN_TOKEN:
+        raise HTTPException(status_code=503, detail="SHOPIFY_ADMIN_TOKEN not set in backend/.env")
+    storage.save_shop_token("shopify", shop, SHOPIFY_ADMIN_TOKEN)
+    return {"status": "connected", "platform": "shopify", "shop": shop}
+
+
+def _clean_shop(shop: str) -> str:
+    """Strip https://, trailing slashes, and ensure .myshopify.com suffix."""
+    shop = shop.strip().rstrip("/")
+    for prefix in ("https://", "http://"):
+        if shop.startswith(prefix):
+            shop = shop[len(prefix):]
+    if not shop.endswith(".myshopify.com"):
+        shop = shop + ".myshopify.com"
+    return shop
+
+
 @app.get("/shopify/status")
 def shopify_status(shop: str) -> dict:
+    shop = _clean_shop(shop)
     connected = shop == "mock" or storage.get_shop_token("shopify", shop) is not None
     return {
         "shop": shop,
@@ -91,9 +119,22 @@ def shopify_status(shop: str) -> dict:
     }
 
 
+@app.get("/shopify/items")
+def shopify_items(shop: str) -> dict:
+    """Return the actual items and orders from a connected shop."""
+    shop = _clean_shop(shop)
+    data = _fetch_shop_data(shop)
+    return {
+        "shop": shop,
+        "items": [i.model_dump(mode="json") for i in data.items],
+        "orders": [o.model_dump(mode="json") for o in data.orders],
+    }
+
+
 @app.get("/shopify/preview")
 def shopify_preview(shop: str) -> dict:
     """Order/listing counts for the frontend's import step."""
+    shop = _clean_shop(shop)
     data = _fetch_shop_data(shop)
     return {
         "shop": shop,

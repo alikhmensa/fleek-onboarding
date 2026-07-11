@@ -92,45 +92,31 @@ async function connectShopify() {
   const raw = document.getElementById('shopDomain').value.trim();
   if (!raw) { document.getElementById('shopDomain').focus(); showToast('Enter your Shopify store name', 'error'); return; }
 
-  // "mock" runs the whole flow against the backend's built-in demo shop
-  const domain = raw.toLowerCase() === 'mock' ? 'mock' : raw.replace(/\.myshopify\.com$/i, '') + '.myshopify.com';
-  state.shopifyDomain = domain;
-  document.getElementById('shopifyDomainLabel').textContent = domain;
-
-  // Already connected (token stored server-side)?
-  try {
-    const st = await (await fetch(`${API_BASE}/shopify/status?shop=${encodeURIComponent(domain)}`)).json();
-    if (st.connected) {
-      setPlatformConnected('shopify');
-      showToast(`Shopify store "${domain}" connected!`, 'success');
-      return;
-    }
-    if (!st.oauth_configured) {
-      showToast('Shopify OAuth keys not set in backend/.env yet — type "mock" to use the demo shop', 'error');
-      return;
-    }
-  } catch {
-    showToast('Backend unreachable at ' + (API_BASE || window.location.origin), 'error');
+  if (raw.toLowerCase() === 'mock') {
+    state.shopifyDomain = 'mock';
+    document.getElementById('shopifyDomainLabel').textContent = 'mock (demo shop)';
+    setPlatformConnected('shopify');
+    showToast('Mock shop connected!', 'success');
     return;
   }
 
-  // Real OAuth: popup to Shopify's consent screen, then poll until the
-  // backend callback has stored the token
-  window.open(`${API_BASE}/connect/shopify?shop=${encodeURIComponent(domain)}`, 'shopify-oauth', 'width=600,height=760');
-  showToast('Approve the app in the Shopify window…', 'info');
+  const domain = raw.replace(/\.myshopify\.com$/i, '') + '.myshopify.com';
+  state.shopifyDomain = domain;
+  document.getElementById('shopifyDomainLabel').textContent = domain;
 
-  for (let i = 0; i < 60; i++) {
-    await sleep(2000);
-    try {
-      const st = await (await fetch(`${API_BASE}/shopify/status?shop=${encodeURIComponent(domain)}`)).json();
-      if (st.connected) {
-        setPlatformConnected('shopify');
-        showToast(`Shopify store "${domain}" connected!`, 'success');
-        return;
-      }
-    } catch {}
+  try {
+    const res = await fetch(`${API_BASE}/connect/shopify/direct`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shop_domain: domain }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Connection failed');
+    setPlatformConnected('shopify');
+    showToast(`Shopify store "${domain}" connected!`, 'success');
+  } catch (err) {
+    showToast('Failed to connect: ' + err.message, 'error');
   }
-  showToast('Shopify connection timed out — try again', 'error');
 }
 
 function setPlatformConnected(platform) {
@@ -413,6 +399,7 @@ async function confirmAndFinish() {
 
   renderProfileSummary(onboard.profile);
   renderContributions();
+  loadImportedItems();
   goToPage(4);
   showToast('Profile built — matching Fleek inventory to your shop', 'success');
   loadRecommendations();
@@ -452,6 +439,50 @@ function renderProfileSummary(profile) {
     ...profile.saturation.oversupplied.map(o => `<div class="profile-chip chip-over">Well stocked: ${o}</div>`),
   ];
   el.innerHTML = `<h3 class="recs-heading">Your shop's DNA</h3><div class="profile-chips">${chips.join('')}</div>`;
+}
+
+async function loadImportedItems() {
+  const el = document.getElementById('importedItemsSection');
+  if (!el || !state.shopifyDomain) return;
+  el.innerHTML = `<h3 class="recs-heading">Your imported inventory</h3>
+    <div class="recs-loading"><div class="spinner"></div><span>Loading your items…</span></div>`;
+
+  try {
+    const res = await fetch(`${API_BASE}/shopify/items?shop=${encodeURIComponent(state.shopifyDomain)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.items || data.items.length === 0) {
+      el.innerHTML = `<h3 class="recs-heading">Your imported inventory</h3><p class="recs-empty">No items found.</p>`;
+      return;
+    }
+    el.innerHTML = `<h3 class="recs-heading">Your imported inventory</h3>
+      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:8px;">${data.items.length} listings from ${data.shop}</p>
+      <div class="items-grid">${data.items.map(renderItemCard).join('')}</div>`;
+  } catch (err) {
+    el.innerHTML = `<h3 class="recs-heading">Your imported inventory</h3>
+      <p class="recs-empty">Couldn't load items: ${err.message}</p>`;
+  }
+}
+
+function renderItemCard(item) {
+  const img = item.photos && item.photos.length
+    ? `<img class="item-card-img" src="${item.photos[0]}" alt="${item.title}" loading="lazy" />`
+    : `<div class="item-card-img-placeholder">📦</div>`;
+  const brand = item.brand ? `<span class="item-card-brand">${item.brand}</span>` : '';
+  const status = item.status
+    ? `<span class="item-card-status ${item.status}">${item.status}</span>` : '';
+  return `
+    <div class="item-card">
+      ${img}
+      <div class="item-card-body">
+        <div class="item-card-title">${item.title}</div>
+        <div class="item-card-meta">
+          <span class="item-card-price">£${Number(item.price).toFixed(2)}</span>
+          ${brand}
+        </div>
+        ${status}
+      </div>
+    </div>`;
 }
 
 async function loadRecommendations() {
