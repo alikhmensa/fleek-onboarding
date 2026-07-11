@@ -322,16 +322,6 @@ function stopRecording() {
   document.getElementById('recordBtnLabel').textContent = 'Re-record';
 }
 
-function animateWaveformBars() {
-  const bars = document.querySelectorAll('.waveform-bar');
-  bars.forEach(bar => {
-    const h = state.isRecording
-      ? Math.max(4, Math.random() * 52 + 8)
-      : 4;
-    bar.style.height = h + 'px';
-  });
-}
-
 function playVoiceNote() {
   const audio = document.getElementById('voiceAudio');
   if (audio.paused) {
