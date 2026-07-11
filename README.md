@@ -42,6 +42,8 @@ For eBay/Shopify, copy `.env.example` to `.env` and fill in your API credentials
 cp .env.example .env
 ```
 
+> **Note:** All API keys and secrets are stored as **GitHub Repository Secrets** (Settings → Secrets and variables → Actions). Never commit real credentials to the repo. Pull them from GitHub Secrets for CI/CD, or ask a team member for the `.env` values for local development.
+
 ## Usage
 
 ### API server (for frontend/backend integration)
