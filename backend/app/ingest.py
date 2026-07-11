@@ -49,18 +49,33 @@ def parse_orders(file_bytes: bytes, filename: str = "") -> pd.DataFrame:
 def shopify_orders_to_df(orders, items) -> pd.DataFrame:
     """Convert connector ShopOrder/ShopItem lists into the same line-item frame
     parse_orders produces; brand comes from the item catalogue where the sold
-    product is still listed."""
+    product is still listed. When the store has NO orders, active listings stand
+    in as a proxy so the profile pipeline still runs (Pre_Deployment port)."""
     brand_by_id = {i.item_id: i.brand for i in items if i.brand}
-    df = pd.DataFrame(
-        {
-            "title": o.title,
-            "price": o.price,
-            "quantity": 1,
-            "created_at": o.sold_at.isoformat() if o.sold_at else None,
-            "vendor": brand_by_id.get(o.item_id),
-        }
-        for o in orders
-    )
+    if orders:
+        df = pd.DataFrame(
+            {
+                "title": o.title,
+                "price": o.price,
+                "quantity": 1,
+                "created_at": o.sold_at.isoformat() if o.sold_at else None,
+                "vendor": brand_by_id.get(o.item_id),
+            }
+            for o in orders
+        )
+    elif items:
+        df = pd.DataFrame(
+            {
+                "title": i.title,
+                "price": i.price,
+                "quantity": 1,
+                "created_at": i.listed_at.isoformat() if i.listed_at else None,
+                "vendor": i.brand,
+            }
+            for i in items
+        )
+    else:
+        return pd.DataFrame()
     if df.empty:
         return df
     return df[df["price"] > 0]

@@ -207,7 +207,8 @@ async function connectShopify() {
   if (!raw) { document.getElementById('shopDomain').focus(); showToast('Enter your Shopify store name', 'error'); return; }
 
   // "mock" runs the whole flow against the backend's built-in demo shop
-  const domain = raw.toLowerCase() === 'mock' ? 'mock' : raw.replace(/\.myshopify\.com$/i, '') + '.myshopify.com';
+  const domain = raw.toLowerCase() === 'mock' ? 'mock'
+    : raw.replace(/^https?:\/\//i, '').replace(/\/+$/, '').replace(/\.myshopify\.com$/i, '') + '.myshopify.com';
   state.shopifyDomain = domain;
   document.getElementById('shopifyDomainLabel').textContent = domain;
 
@@ -219,16 +220,31 @@ async function connectShopify() {
       showToast(`Shopify store "${domain}" connected!`, 'success');
       return;
     }
-    if (!st.oauth_configured) {
-      showToast('Shopify OAuth keys not set in backend/.env yet — type "mock" to use the demo shop', 'error');
+    // Preferred: direct connect via the dev store's admin token (no OAuth dance)
+    if (st.direct_available) {
+      const res = await fetch(`${API_BASE}/connect/shopify/direct`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shop_domain: domain }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Connection failed');
+      state.shopifyDomain = data.shop;
+      document.getElementById('shopifyDomainLabel').textContent = data.shop;
+      setPlatformConnected('shopify');
+      showToast(`Shopify store "${data.shop}" connected!`, 'success');
       return;
     }
-  } catch {
-    showToast('Backend unreachable at ' + (API_BASE || window.location.origin), 'error');
+    if (!st.oauth_configured) {
+      showToast('Shopify not configured in backend/.env yet — type "mock" to use the demo shop', 'error');
+      return;
+    }
+  } catch (err) {
+    showToast('Shopify connect failed: ' + err.message, 'error');
     return;
   }
 
-  // Real OAuth: popup to Shopify's consent screen, then poll until the
+  // Fallback: OAuth popup to Shopify's consent screen, then poll until the
   // backend callback has stored the token
   window.open(`${API_BASE}/connect/shopify?shop=${encodeURIComponent(domain)}`, 'shopify-oauth', 'width=600,height=760');
   showToast('Approve the app in the Shopify window…', 'info');

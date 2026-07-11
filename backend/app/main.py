@@ -92,13 +92,55 @@ def callback_shopify(request: Request):
     return {"status": "connected", "platform": "shopify", "shop": shop}
 
 
+SHOPIFY_ADMIN_TOKEN = os.getenv("SHOPIFY_ADMIN_TOKEN", "")
+
+
+def _clean_shop(shop: str) -> str:
+    """Normalise user input: strip scheme/slashes, ensure .myshopify.com suffix."""
+    shop = shop.strip().rstrip("/")
+    for prefix in ("https://", "http://"):
+        if shop.startswith(prefix):
+            shop = shop[len(prefix):]
+    if shop != "mock" and not shop.endswith(".myshopify.com"):
+        shop += ".myshopify.com"
+    return shop
+
+
+@app.post("/connect/shopify/direct")
+async def connect_shopify_direct(request: Request):
+    """Connect the demo dev store using the admin token from .env — no OAuth dance.
+    (Ported from Shiv's Pre_Deployment branch.)"""
+    data = await request.json()
+    shop = _clean_shop(data.get("shop_domain", ""))
+    if not shop:
+        raise HTTPException(status_code=400, detail="shop_domain is required")
+    if not SHOPIFY_ADMIN_TOKEN:
+        raise HTTPException(status_code=503, detail="SHOPIFY_ADMIN_TOKEN not set in backend/.env")
+    storage.save_shop_token("shopify", shop, SHOPIFY_ADMIN_TOKEN)
+    return {"status": "connected", "platform": "shopify", "shop": shop}
+
+
 @app.get("/shopify/status")
 def shopify_status(shop: str) -> dict:
+    shop = _clean_shop(shop)
     connected = shop == "mock" or storage.get_shop_token("shopify", shop) is not None
     return {
         "shop": shop,
         "connected": connected,
         "oauth_configured": bool(shopify_oauth.api_key and shopify_oauth.api_secret),
+        "direct_available": bool(SHOPIFY_ADMIN_TOKEN),
+    }
+
+
+@app.get("/shopify/items")
+def shopify_items(shop: str) -> dict:
+    """Full items + orders from a connected shop (Pre_Deployment port)."""
+    shop = _clean_shop(shop)
+    data = _fetch_shop_data(shop)
+    return {
+        "shop": shop,
+        "items": [i.model_dump(mode="json") for i in data.items],
+        "orders": [o.model_dump(mode="json") for o in data.orders],
     }
 
 
@@ -147,9 +189,12 @@ async def onboard(
         if transcript:
             description = f"{description} {transcript}".strip() if description else transcript
 
+    listings_proxy = False
     if shopify_shop:
+        shopify_shop = _clean_shop(shopify_shop)
         shop_data = _fetch_shop_data(shopify_shop)
         frames.append(shopify_orders_to_df(shop_data.orders, shop_data.items))
+        listings_proxy = not shop_data.orders  # listings standing in for sales
         active_listings = [
             f"{i.title} ({i.category or 'uncategorised'}, £{i.price:.0f})" for i in shop_data.items
         ]
@@ -175,8 +220,12 @@ async def onboard(
             aggregate_for_llm(df), price_band, budget, margin_multiple,
             description=description, active_listings=active_listings or None,
         )
-        profile.stats = compute_stats(df)
-        profile.stats.active_listings = len(active_listings)
+        if listings_proxy and file is None:
+            # listings aren't sales — don't fabricate revenue/velocity numbers
+            profile.stats = None
+        else:
+            profile.stats = compute_stats(df)
+            profile.stats.active_listings = len(active_listings)
     else:
         # words-only onboarding: profile built purely from the description/voice
         profile = build_profile_from_description(description, budget, margin_multiple)
