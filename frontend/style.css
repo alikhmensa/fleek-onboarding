@@ -370,3 +370,15 @@ code{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padd
 
 .soon-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 @media(max-width:700px){.soon-row{grid-template-columns:1fr;}}
+
+/* Register page: centered, compact, fits one viewport */
+.form-page-centered{align-items:center;gap:20px;}
+.form-header-centered{text-align:center;}
+.form-page-centered .card-form{max-width:680px;padding:24px 28px;gap:14px;}
+.form-page-centered .btn-sso{padding:10px;}
+.form-page-centered input[type="text"],.form-page-centered input[type="email"],
+.form-page-centered input[type="password"],.form-page-centered select{padding:10px 13px;}
+.form-page-centered .btn-primary{padding:12px 24px;}
+#page-register .page-content{padding-top:28px;padding-bottom:28px;}
+.form-page-centered .form-header h2{font-size:1.45rem;}
+.form-page-centered .login-link{margin-top:-4px;}
