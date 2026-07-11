@@ -171,6 +171,7 @@ async function restoreDashboard() {
     renderProfileSummary(data.profile);
     goToPage(4);
     loadRecommendations();
+    loadMarketplace();
   } catch {
     goToPage(2); // stored seller vanished (db wiped) -> re-onboard
   }
