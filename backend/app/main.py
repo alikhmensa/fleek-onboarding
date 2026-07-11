@@ -13,11 +13,12 @@ import os
 from functools import lru_cache
 
 import pandas as pd
-from fastapi import FastAPI, Form, HTTPException, Query, Request, UploadFile
+from fastapi import FastAPI, Form, Header, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
 from . import storage
+from .auth import router as auth_router, user_id_from_header
 from .bundle import build_bundles
 from .config import BACKEND_DIR, DEFAULT_MARGIN_MULTIPLE, FIXTURES_DIR, INVENTORY_PATH
 from .connectors.mock_shop import mock_shop_data
@@ -50,6 +51,7 @@ app.add_middleware(
 )
 
 storage.init_db()
+app.include_router(auth_router)
 
 
 @lru_cache
@@ -132,6 +134,7 @@ async def onboard(
     description: str | None = Form(default=None),
     budget: float | None = Form(default=None),
     margin_multiple: float = Form(default=DEFAULT_MARGIN_MULTIPLE),
+    authorization: str | None = Header(default=None),
 ) -> OnboardResponse:
     """Sources merge: connected Shopify shop and/or an orders file (CSV/Excel),
     plus optional free-text and voice-note descriptions of the shop.
@@ -173,6 +176,9 @@ async def onboard(
 
     seller_id = storage.new_seller_id()
     storage.save_profile(seller_id, profile)
+    user_id = user_id_from_header(authorization)
+    if user_id:
+        storage.set_user_seller(user_id, seller_id)  # session -> dashboard survives refresh
     return OnboardResponse(seller_id=seller_id, profile=profile)
 
 

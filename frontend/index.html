@@ -159,7 +159,23 @@
             Create account
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
-          <p class="login-link">Already have an account? <a href="#" class="link">Log in</a></p>
+          <p class="login-link">Already have an account? <a href="#" class="link" onclick="toggleAuthForms(event)">Log in</a></p>
+        </form>
+
+        <form class="card-form" id="loginForm" onsubmit="handleLogin(event)" style="display:none">
+          <div class="field">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" placeholder="alex@yourshop.com" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password" required />
+          </div>
+          <button type="submit" class="btn-primary full-width" id="loginBtn">
+            Log in
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <p class="login-link">New to Fleek? <a href="#" class="link" onclick="toggleAuthForms(event)">Create an account</a></p>
         </form>
       </div>
     </section>

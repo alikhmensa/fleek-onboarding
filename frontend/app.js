@@ -72,17 +72,123 @@ function updateStepDots(pageIndex) {
   lines.forEach((l, i) => l.classList.toggle('done', i < si));
 }
 
-// ── PAGE 1: REGISTER ──────────────────────────────────
+// ── PAGE 1: AUTH (register / login) ───────────────────
+function authHeaders() {
+  const token = localStorage.getItem('fleek_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function setSession(token, user) {
+  localStorage.setItem('fleek_token', token);
+  state.user.firstName    = user.first_name || '';
+  state.user.lastName     = user.last_name || '';
+  state.user.email        = user.email || '';
+  state.user.businessName = user.business_name || '';
+  state.user.sellerType   = user.seller_type || '';
+  state.sellerId          = user.seller_id || state.sellerId;
+}
+
+function logout() {
+  localStorage.removeItem('fleek_token');
+  location.reload();
+}
+
+function toggleAuthForms(e) {
+  e?.preventDefault();
+  const reg = document.getElementById('registerForm');
+  const log = document.getElementById('loginForm');
+  const showLogin = log.style.display === 'none';
+  log.style.display = showLogin ? 'flex' : 'none';
+  reg.style.display = showLogin ? 'none' : 'flex';
+  document.querySelector('.form-header-centered h2').textContent =
+    showLogin ? 'Welcome back' : 'Create your buyer account';
+}
+
 async function handleRegister(e) {
   e.preventDefault();
-  state.user.firstName    = document.getElementById('firstName').value.trim();
-  state.user.lastName     = document.getElementById('lastName').value.trim();
-  state.user.email        = document.getElementById('email').value.trim();
-  state.user.businessName = document.getElementById('businessName')?.value.trim() || '';
-  state.user.sellerType   = document.getElementById('sellerType')?.value || '';
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true;
 
-  showToast(`Welcome to Fleek, ${state.user.firstName}`, 'success');
-  goToPage(2); // straight to connect stores
+  try {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:         document.getElementById('email').value.trim(),
+        password:      document.getElementById('password').value,
+        first_name:    document.getElementById('firstName').value.trim(),
+        last_name:     document.getElementById('lastName').value.trim(),
+        business_name: document.getElementById('businessName')?.value.trim() || '',
+        seller_type:   document.getElementById('sellerType')?.value || '',
+      }),
+    });
+    const data = await res.json();
+    if (res.status === 409) { showToast(data.detail, 'error'); toggleAuthForms(); return; }
+    if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+    setSession(data.token, data.user);
+    showToast(`Welcome to Fleek, ${state.user.firstName}`, 'success');
+    goToPage(2);
+  } catch (err) {
+    showToast('Sign-up failed: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:    document.getElementById('loginEmail').value.trim(),
+        password: document.getElementById('loginPassword').value,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+    setSession(data.token, data.user);
+    showToast(`Welcome back, ${state.user.firstName || 'seller'}`, 'success');
+    if (state.sellerId) await restoreDashboard();   // returning seller -> straight home
+    else goToPage(2);                               // logged in but never onboarded
+  } catch (err) {
+    showToast('Log-in failed: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function restoreDashboard() {
+  try {
+    const res = await fetch(`${API_BASE}/seller/${encodeURIComponent(state.sellerId)}/story`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    state.profile = data.profile;
+    renderProfileSummary(data.profile);
+    goToPage(4);
+    loadRecommendations();
+  } catch {
+    goToPage(2); // stored seller vanished (db wiped) -> re-onboard
+  }
+}
+
+async function restoreSession() {
+  const token = localStorage.getItem('fleek_token');
+  if (!token) return;
+  try {
+    const res = await fetch(`${API_BASE}/auth/me`, { headers: authHeaders() });
+    if (!res.ok) throw new Error('expired');
+    const { user } = await res.json();
+    setSession(token, user);
+    if (state.sellerId) await restoreDashboard();
+    else { showToast(`Welcome back, ${state.user.firstName || 'seller'}`, 'success'); goToPage(2); }
+  } catch {
+    localStorage.removeItem('fleek_token');
+  }
 }
 
 function togglePassword() {
@@ -409,7 +515,7 @@ async function confirmAndFinish() {
 
   let onboard;
   try {
-    const res = await fetch(`${API_BASE}/onboard`, { method: 'POST', body: form });
+    const res = await fetch(`${API_BASE}/onboard`, { method: 'POST', headers: authHeaders(), body: form });
     if (!res.ok) throw new Error((await res.json()).detail || `HTTP ${res.status}`);
     onboard = await res.json();
   } catch (err) {
@@ -726,6 +832,7 @@ function productCard(i) {
 
 // ── INIT ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  restoreSession();
   // Animate hero orbs
   document.querySelectorAll('.hero-orb').forEach(o => {
     o.style.opacity = '0';
