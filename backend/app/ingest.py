@@ -22,8 +22,11 @@ COLUMN_ALIASES = {
 }
 
 
-def parse_orders(csv_bytes: bytes) -> pd.DataFrame:
-    raw = pd.read_csv(io.BytesIO(csv_bytes))
+def parse_orders(file_bytes: bytes, filename: str = "") -> pd.DataFrame:
+    if filename.lower().endswith((".xlsx", ".xls")) or file_bytes[:4] == b"PK\x03\x04":
+        raw = pd.read_excel(io.BytesIO(file_bytes))
+    else:
+        raw = pd.read_csv(io.BytesIO(file_bytes))
     df = pd.DataFrame()
     for ours, aliases in COLUMN_ALIASES.items():
         for alias in aliases:
@@ -41,6 +44,26 @@ def parse_orders(csv_bytes: bytes) -> pd.DataFrame:
     if df.empty:
         raise ValueError("CSV parsed but contained no sellable line items")
     return df
+
+
+def shopify_orders_to_df(orders, items) -> pd.DataFrame:
+    """Convert connector ShopOrder/ShopItem lists into the same line-item frame
+    parse_orders produces; brand comes from the item catalogue where the sold
+    product is still listed."""
+    brand_by_id = {i.item_id: i.brand for i in items if i.brand}
+    df = pd.DataFrame(
+        {
+            "title": o.title,
+            "price": o.price,
+            "quantity": 1,
+            "created_at": o.sold_at.isoformat() if o.sold_at else None,
+            "vendor": brand_by_id.get(o.item_id),
+        }
+        for o in orders
+    )
+    if df.empty:
+        return df
+    return df[df["price"] > 0]
 
 
 def compute_price_band(df: pd.DataFrame, currency: str = "GBP") -> PriceBand:

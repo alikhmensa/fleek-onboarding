@@ -11,19 +11,23 @@ from .schemas import PriceBand, Saturation, SellerProfile
 
 log = logging.getLogger(__name__)
 
-PROMPT = """You are profiling a secondhand-clothing reseller from a summary of their Shopify sales history.
+PROMPT = """You are profiling a secondhand-clothing reseller from a summary of their sales history.
 
 Sales summary (JSON):
 {aggregate}
-
+{description_section}{listings_section}
 Return:
 - aesthetic: 2-5 short style tags describing what this seller's shop is about
   (e.g. "Y2K", "vintage workwear", "90s branded sportswear"). Base them on the
   product titles and vendors actually sold.
 - saturation.oversupplied: 1-3 categories/brands this seller already sells heavily
-  (they do NOT need more of these).
+  or currently stocks in depth (they do NOT need more of these). Weigh current
+  active listings at least as heavily as past sales here.
 - saturation.gaps: 2-4 adjacent categories their buyers would plausibly want but the
   seller barely stocks (e.g. "knitwear", "footwear"). Must NOT overlap oversupplied.
+
+If the seller described their shop in their own words, treat that as strong signal
+for aesthetic and gaps.
 """
 
 RESPONSE_SCHEMA = {
@@ -43,12 +47,24 @@ RESPONSE_SCHEMA = {
 }
 
 
-def _infer_taste(aggregate: dict) -> dict:
+def _infer_taste(aggregate: dict, description: str | None, active_listings: list[str] | None) -> dict:
     from google.genai import types
 
+    description_section = (
+        f"\nThe seller describes their shop in their own words:\n\"{description}\"\n" if description else ""
+    )
+    listings_section = (
+        "\nTheir CURRENT active listings (what they stock right now):\n- " + "\n- ".join(active_listings) + "\n"
+        if active_listings
+        else ""
+    )
     resp = genai_client().models.generate_content(
         model=LLM_MODEL,
-        contents=PROMPT.format(aggregate=aggregate),
+        contents=PROMPT.format(
+            aggregate=aggregate,
+            description_section=description_section,
+            listings_section=listings_section,
+        ),
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
             response_schema=RESPONSE_SCHEMA,
@@ -67,9 +83,16 @@ def _heuristic_taste(aggregate: dict) -> dict:
     }
 
 
-def build_profile(aggregate: dict, price_band: PriceBand, budget: float, margin_multiple: float) -> SellerProfile:
+def build_profile(
+    aggregate: dict,
+    price_band: PriceBand,
+    budget: float,
+    margin_multiple: float,
+    description: str | None = None,
+    active_listings: list[str] | None = None,
+) -> SellerProfile:
     try:
-        taste = _infer_taste(aggregate)
+        taste = _infer_taste(aggregate, description, active_listings)
     except Exception:
         log.exception("profile LLM call failed — using heuristic fallback")
         taste = _heuristic_taste(aggregate)

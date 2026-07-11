@@ -17,12 +17,25 @@ cp .env.example .env          # add GOOGLE_API_KEY (+ optionally PINECONE_API_KE
 Runs degraded but alive with **no keys at all**: heuristic profile, keyword-overlap
 search, template rationales. Every fallback logs loudly, so you can tell.
 
-## The two endpoints (frontend contract)
+## Endpoints (frontend contract)
 
 ```
-POST /onboard
-  multipart form: file=<orders.csv>  budget=<optional float>  margin_multiple=<optional, default 3.0>
+GET  /connect/shopify?shop=mystore.myshopify.com   # redirects to Shopify OAuth
+GET  /callback/shopify                             # OAuth callback (registered in the VEND app);
+                                                   # redirects to FRONTEND_URL if set, else JSON
+GET  /shopify/status?shop=...                      # { shop, connected } — poll after the OAuth popup
+
+POST /onboard — all sources optional, at least one order source required:
+  multipart form:
+    shopify_shop=<connected shop domain, or "mock" for the demo shop>
+    file=<orders .csv or .xlsx>
+    description=<free text: the seller describing their own shop>
+    budget=<optional float>  margin_multiple=<optional, default 3.0>
   -> { "seller_id": "s_ab12", "profile": { aesthetic, price_band, saturation, ... } }
+
+  Shopify orders + file rows merge into one sales history; the shop's ACTIVE
+  listings feed the saturation analysis; the description is injected into the
+  profile prompt as the seller's own words.
 
 GET /recommendations?seller_id=...&budget=...
   -> { "bundles": [ { supplier_id, items[], total_cost, est_margin, est_clear_days, rationale } ],
@@ -32,6 +45,14 @@ GET /recommendations?mock=true   # serves data/fixtures/bundles.json — build t
 ```
 
 Try it: `curl -F "file=@data/demo_orders.csv" localhost:8000/onboard`
+Or the full multi-source flow with zero credentials:
+`curl -F "shopify_shop=mock" -F "description=I sell 90s sportswear, no shoes" localhost:8000/onboard`
+
+Real Shopify OAuth needs `SHOPIFY_API_KEY`/`SHOPIFY_API_SECRET` in `.env` (the "VEND"
+app in the Partners dashboard — Shiv has it; its registered callback is
+`http://localhost:8000/callback/shopify`, which this server hosts). Without the
+`read_all_orders` scope Shopify returns only ~60 days of orders — fine for a fresh
+dev store.
 
 ## Pipeline (app/, one file per stage)
 

@@ -6,3 +6,5 @@ python-multipart
 python-dotenv
 google-genai
 pinecone
+requests
+openpyxl

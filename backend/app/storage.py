@@ -18,6 +18,27 @@ def init_db() -> None:
             "CREATE TABLE IF NOT EXISTS profiles ("
             "seller_id TEXT PRIMARY KEY, profile TEXT NOT NULL, created_at TEXT NOT NULL)"
         )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS shop_tokens ("
+            "platform TEXT NOT NULL, shop TEXT NOT NULL, access_token TEXT NOT NULL, "
+            "created_at TEXT NOT NULL, PRIMARY KEY (platform, shop))"
+        )
+
+
+def save_shop_token(platform: str, shop: str, access_token: str) -> None:
+    with _conn() as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO shop_tokens VALUES (?, ?, ?, ?)",
+            (platform, shop, access_token, datetime.now(timezone.utc).isoformat()),
+        )
+
+
+def get_shop_token(platform: str, shop: str) -> str | None:
+    with _conn() as conn:
+        row = conn.execute(
+            "SELECT access_token FROM shop_tokens WHERE platform = ? AND shop = ?", (platform, shop)
+        ).fetchone()
+    return row[0] if row else None
 
 
 def new_seller_id() -> str:
