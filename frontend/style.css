@@ -360,3 +360,6 @@ code{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padd
 
 .voice-inline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .voice-inline .char-count{margin-left:auto;}
+
+.platform-disabled{opacity:0.55;pointer-events:none;user-select:none;}
+.status-badge.status-soon{background:var(--bg2);color:var(--text3);border:1px dashed var(--border-h);}
