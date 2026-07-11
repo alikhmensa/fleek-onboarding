@@ -17,9 +17,19 @@ def _normalise(values: list[float]) -> list[float]:
     return [(v - lo) / (hi - lo) for v in values]
 
 
+_STOPWORDS = {"and", "the", "of", "for", "vintage", "retro", "branded", "y2k", "90s", "80s"}
+
+
 def _matches(item: Candidate, tags: list[str]) -> bool:
-    text = f"{item.brand} {item.category} {item.title}".lower()
-    return any(tag.lower() in text or item.category.lower() in tag.lower() for tag in tags)
+    """Profile tags are free text ("branded track jackets") — match on token overlap
+    with the item, not whole-phrase containment, so "track jacket" items still hit."""
+    item_tokens = set(f"{item.brand} {item.category} {item.title}".lower().replace("-", " ").split())
+    item_tokens |= {t.rstrip("s") for t in item_tokens}
+    for tag in tags:
+        tag_tokens = {t.rstrip("s") for t in tag.lower().replace("-", " ").split()} - _STOPWORDS
+        if tag_tokens & item_tokens:
+            return True
+    return False
 
 
 def rank(viable: list[Candidate], profile: SellerProfile) -> list[Candidate]:
