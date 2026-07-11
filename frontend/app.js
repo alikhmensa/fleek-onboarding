@@ -48,6 +48,14 @@ function goToPage(index) {
   document.getElementById(PAGES[index])?.classList.add('active');
   state.currentPage = index;
   updateStepDots(index);
+  // marketplace page gets the real Fleek navbar, onboarding keeps the stepper
+  const isHome = PAGES[index] === 'page-success';
+  document.getElementById('onboardNav').style.display = isHome ? 'none' : 'flex';
+  document.getElementById('marketNav').style.display  = isHome ? 'flex' : 'none';
+  if (isHome) {
+    const initials = ((state.user.firstName[0] || 'F') + (state.user.lastName[0] || 'L')).toUpperCase();
+    document.getElementById('navAvatar').textContent = initials;
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -562,19 +570,20 @@ async function loadCollections() {
 
 function filterMarketCategory(cat) {
   market.category = cat; market.q = null; market.offset = 0;
-  document.getElementById('marketSearch').value = '';
+  document.getElementById('navSearch').value = '';
   loadProducts();
 }
 
 function searchMarket() {
-  const q = document.getElementById('marketSearch').value.trim();
+  const q = document.getElementById('navSearch').value.trim();
   market.q = q || null; market.category = null; market.offset = 0;
   loadProducts();
+  document.getElementById('productGrid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function clearMarketFilter() {
   market.category = null; market.q = null; market.offset = 0;
-  document.getElementById('marketSearch').value = '';
+  document.getElementById('navSearch').value = '';
   loadProducts();
 }
 
@@ -614,15 +623,16 @@ function productCard(i) {
     <div class="product-card">
       <div class="product-img">
         <img src="${i.image_url}" alt="${i.title}" loading="lazy" />
-        ${discount >= 40 ? `<span class="disc-badge">${discount}% below resale</span>` : ''}
+        ${discount >= 30 ? `<span class="disc-badge">${discount}% Discount</span>` : ''}
       </div>
       <div class="product-body">
         <p class="p-title">${i.title}</p>
         <div class="p-rating"><span class="p-stars">★★★★★</span><span>${i.rating ?? ''}</span></div>
         <div class="p-price-row">
           <span class="p-price">£${i.fleek_cost.toFixed(0)}</span>
-          <span class="p-resale">resells ~£${i.predicted_resale.toFixed(0)}</span>
+          <span class="p-compare">£${i.predicted_resale.toFixed(0)}</span>
         </div>
+        <p class="p-perpc">est. resale value</p>
         <span class="ship-chip">Shipping Inc.</span>
       </div>
     </div>`;
