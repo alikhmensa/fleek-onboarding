@@ -502,7 +502,10 @@ function renderBundle(b) {
           <span>${b.est_margin}× est. margin</span>
           <span>~${b.est_clear_days} days to clear</span>
         </div>
-        <p class="bundle-rationale">${b.rationale}</p>
+        <div class="ai-reason">
+          <div class="ai-reason-label"><span class="ai-star">✦</span> Why Fleek picked this for you</div>
+          <p>${b.rationale}</p>
+        </div>
         <button class="btn-secondary bundle-btn" onclick="showToast('Bundle from supplier ${b.supplier_id} added to your Fleek cart','success')">Add bundle to cart</button>
       </div>
     </div>`;
