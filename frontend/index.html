@@ -28,8 +28,6 @@
         <div class="step-dot" data-step="2"><span>3</span></div>
         <div class="step-line"></div>
         <div class="step-dot" data-step="3"><span>4</span></div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="4"><span>5</span></div>
       </div>
 
       <button class="btn-ghost" id="helpBtn">Need help?</button>
@@ -61,11 +59,9 @@
         <div class="flow-steps-preview">
           <div class="flow-step-item"><div class="flow-step-num">1</div><span>Register</span></div>
           <div class="flow-step-arrow">→</div>
-          <div class="flow-step-item"><div class="flow-step-num">2</div><span>Verify email</span></div>
+          <div class="flow-step-item"><div class="flow-step-num">2</div><span>Connect your store</span></div>
           <div class="flow-step-arrow">→</div>
-          <div class="flow-step-item"><div class="flow-step-num">3</div><span>Connect stores</span></div>
-          <div class="flow-step-arrow">→</div>
-          <div class="flow-step-item"><div class="flow-step-num">4</div><span>Enrich profile</span></div>
+          <div class="flow-step-item"><div class="flow-step-num">3</div><span>Get your picks</span></div>
         </div>
         <div class="hero-cta">
           <button class="btn-primary btn-accent" onclick="goToPage(1)">
@@ -107,7 +103,7 @@
           <div class="field">
             <label for="email">Work email</label>
             <input type="email" id="email" placeholder="alex@yourshop.com" autocomplete="email" required />
-            <p class="field-hint">We'll send a verification link to this address</p>
+            
           </div>
           <div class="field">
             <label for="password">Password</label>
@@ -140,74 +136,10 @@
       </div>
     </section>
 
-    <!-- ─── PAGE 2: EMAIL VERIFICATION ─── -->
-    <section class="page" id="page-verify">
-      <div class="page-content form-page">
-        <div class="verify-container">
-          <div class="verify-icon-wrap">
-            <div class="verify-envelope">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.5">
-                <rect x="2" y="4" width="20" height="16" rx="2"/>
-                <path d="M2 7l10 7 10-7"/>
-              </svg>
-            </div>
-            <div class="verify-pulse"></div>
-          </div>
-
-          <h2>Verify your email</h2>
-          <p class="verify-sub">We've sent a verification link to<br/><strong id="verifyEmailDisplay">your email</strong>.<br/>Click the link to continue — this page will update automatically.</p>
-
-          <div class="verify-steps-list">
-            <div class="vstep done" id="vstep1">
-              <div class="vstep-icon">✓</div>
-              <span>Account created</span>
-            </div>
-            <div class="vstep pending active-step" id="vstep2">
-              <div class="vstep-icon vstep-spin">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-              </div>
-              <span>Waiting for email confirmation</span>
-            </div>
-            <div class="vstep locked" id="vstep3">
-              <div class="vstep-icon">·</div>
-              <span>Store import unlocked</span>
-            </div>
-          </div>
-
-          <div class="verify-actions-card">
-            <p>Didn't receive it? Check your spam folder, or make sure <strong>onboarding@joinfleek.com</strong> isn't blocked.</p>
-            <div class="resend-row">
-              <button class="btn-ghost" onclick="resendVerification()">Resend email</button>
-              <span>·</span>
-              <button class="btn-ghost" onclick="goToPage(1)">Change email address</button>
-            </div>
-            <p class="demo-verify-note">Demo environment: <button type="button" onclick="simulateEmailVerification()">mark email as verified</button></p>
-          </div>
-
-          <div class="verify-success-banner" id="verifySuccessBanner" style="display:none">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#178a44" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            Email verified. You can now connect your store and import your sales history.
-          </div>
-
-          <div class="verify-footer">
-            <span></span>
-            <button class="btn-primary" id="continueAfterVerify" onclick="goToPage(3)" disabled>
-              Continue
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ─── PAGE 3: CONNECT STORES ─── -->
     <section class="page" id="page-connect">
       <div class="page-content connect-page">
         <div class="form-header">
-          <div class="verified-badge">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            Identity verified
-          </div>
           <h2>Connect your stores</h2>
           <p>Link your marketplaces. Your order history will be securely imported once connected.</p>
         </div>
@@ -548,7 +480,6 @@
         <button class="modal-close" onclick="closeHelp()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="help-item"><div class="help-icon">✉️</div><div><strong>Email verification</strong><p>Check your inbox for the Fleek verification email. Click the button inside it to unlock data import. The preview card on the page simulates this for demo purposes.</p></div></div>
         <div class="help-item"><div class="help-icon">🔗</div><div><strong>Connecting eBay / Shopify</strong><p>You'll be redirected to OAuth. Type your store name and approve the app on Shopify's consent screen. In the demo environment, enter "mock" as the store name.</p></div></div>
         <div class="help-item"><div class="help-icon">🎙️</div><div><strong>Voice note</strong><p>Requires microphone permission. Your browser may ask for it when you press Record.</p></div></div>
         <div class="help-item"><div class="help-icon">📊</div><div><strong>Spreadsheet upload</strong><p>Supports .xlsx, .xls, and .csv files. Use any export from eBay, Shopify, or Vinted.</p></div></div>

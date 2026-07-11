@@ -1,18 +1,15 @@
 // ─────────────────────────────────────────────────────
 // FLEEK COMPANION – app.js  (v3)
-// Pages: 0=welcome 1=register 2=verify 3=connect 4=enrich 5=success
+// Pages: 0=welcome 1=register 2=connect 3=enrich 4=success
 // API: fleek-onboarding/backend (FastAPI) @ localhost:8000 — same origin when
 //      the backend serves this folder at http://localhost:8000/
-// Email: Resend via email-server/server.js @ localhost:3001
 // ─────────────────────────────────────────────────────
 
 const API_BASE    = window.location.port === '8000' ? '' : 'http://localhost:8000';
-const EMAIL_API   = 'http://localhost:3001';
 
 const PAGES = [
   'page-welcome',
   'page-register',
-  'page-verify',
   'page-connect',
   'page-enrich',
   'page-success',
@@ -77,32 +74,8 @@ async function handleRegister(e) {
   state.user.businessName = document.getElementById('businessName')?.value.trim() || '';
   state.user.sellerType   = document.getElementById('sellerType')?.value || '';
 
-  document.getElementById('verifyEmailDisplay').textContent = state.user.email;
-  const firstNameEl = document.getElementById('emailFirstName');
-  if (firstNameEl) firstNameEl.textContent = state.user.firstName;
-
-  const btn = document.getElementById('registerBtn');
-  btn.disabled = true;
-  btn.textContent = 'Creating your account…';
-
-  try {
-    const res = await fetch(`${EMAIL_API}/api/send-verification`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: state.user.email, firstName: state.user.firstName }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to send email');
-    showToast(`Verification email sent to ${state.user.email}`, 'success');
-  } catch (err) {
-    console.warn('[FleekCompanion] Email server unavailable:', err.message);
-    showToast('Email service offline — use the demo verification link below', 'info');
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = 'Create account <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
-  goToPage(2);
-  startVerificationPolling();
+  showToast(`Welcome to Fleek, ${state.user.firstName}`, 'success');
+  goToPage(2); // straight to connect stores
 }
 
 function togglePassword() {
@@ -113,90 +86,6 @@ function togglePassword() {
   icon.innerHTML = hide
     ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
     : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
-}
-
-// ── PAGE 2: EMAIL VERIFICATION ─────────────────────────
-let pollingInterval = null;
-
-function startVerificationPolling() {
-  if (pollingInterval) clearInterval(pollingInterval);
-  if (!state.user.email) return;
-
-  console.log('[FleekCompanion] Polling for verification…');
-  pollingInterval = setInterval(async () => {
-    try {
-      const res  = await fetch(`${EMAIL_API}/api/check-verification?email=${encodeURIComponent(state.user.email)}`);
-      const data = await res.json();
-      if (data.verified) {
-        clearInterval(pollingInterval);
-        pollingInterval = null;
-        markEmailVerified();
-      }
-    } catch {
-      // server offline – silent
-    }
-  }, 3000);
-}
-
-function markEmailVerified() {
-  if (state.emailVerified) return;
-  state.emailVerified = true;
-
-  const vstep2 = document.getElementById('vstep2');
-  if (vstep2) {
-    vstep2.classList.remove('pending', 'active-step');
-    vstep2.classList.add('done');
-    const icon = vstep2.querySelector('.vstep-icon');
-    if (icon) { icon.textContent = '✓'; icon.classList.remove('vstep-spin'); }
-    const label = vstep2.querySelector('span:last-child');
-    if (label) label.textContent = 'Email link clicked';
-  }
-  const vstep3 = document.getElementById('vstep3');
-  if (vstep3) {
-    vstep3.classList.remove('locked');
-    vstep3.classList.add('done');
-    const icon = vstep3.querySelector('.vstep-icon');
-    if (icon) icon.textContent = '✓';
-    const label = vstep3.querySelector('span:last-child');
-    if (label) label.textContent = 'Store import unlocked';
-  }
-
-  const banner = document.getElementById('verifySuccessBanner');
-  if (banner) banner.style.display = 'flex';
-
-  const btn = document.getElementById('verifyEmailBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '✅ Email verified!'; }
-
-  const continueBtn = document.getElementById('continueAfterVerify');
-  if (continueBtn) continueBtn.disabled = false;
-
-  // If we're not on the verify page yet, navigate there
-  if (state.currentPage !== 2) goToPage(2);
-
-  showToast('Email verified — store import unlocked', 'success');
-}
-
-// Fallback: still allow demo simulation if server is offline
-function simulateEmailVerification() {
-  markEmailVerified();
-}
-
-async function resendVerification() {
-  if (!state.user.email) { showToast('Register first to send a verification email', 'error'); return; }
-  showToast('Resending…', 'info');
-  try {
-    const res = await fetch(`${EMAIL_API}/api/send-verification`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: state.user.email, firstName: state.user.firstName }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
-    showToast(`Verification email resent to ${state.user.email} 📬`, 'success');
-    startVerificationPolling();
-  } catch (err) {
-    showToast('Could not resend: ' + err.message, 'error');
-  }
 }
 
 // ── PAGE 3: CONNECT STORES ─────────────────────────────
@@ -631,7 +520,7 @@ async function confirmAndFinish() {
 
   renderProfileSummary(onboard.profile);
   renderContributions();
-  goToPage(5);
+  goToPage(4);
   showToast('Profile built — matching Fleek inventory to your shop', 'success');
   loadRecommendations();
 }
