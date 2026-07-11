@@ -155,7 +155,7 @@ function disconnectPlatform(platform) {
 }
 
 function updateImportButton() {
-  const any = Object.values(state.connectedPlatforms).some(Boolean);
+  const any = Object.values(state.connectedPlatforms).some(Boolean) || !!state.sheetFile;
   document.getElementById('importBtn').disabled = !any;
 }
 
@@ -207,11 +207,13 @@ async function startImportAndProceed() {
   progress.style.display = 'none';
 
   // Update enrich page chip
-  const platforms = connectedList.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ');
+  const sources = connectedList.map(p => p.charAt(0).toUpperCase() + p.slice(1));
+  if (state.sheetFile) sources.push('your spreadsheet');
   document.getElementById('importSummaryText').textContent =
-    `${totalOrders} orders & ${totalItems} listings imported from ${platforms || 'connected stores'}`;
+    `${totalOrders} orders & ${totalItems} listings from ${sources.join(' + ') || 'your data'}` +
+    (state.sheetFile ? ' (spreadsheet merges at the final step)' : '');
 
-  showToast(`✓ Imported ${totalOrders} orders from ${connectedList.length} store${connectedList.length !== 1 ? 's' : ''}`, 'success');
+  showToast(connectedList.length ? `✓ Imported ${totalOrders} orders` : '✓ Spreadsheet ready — it merges when you complete your profile', 'success');
   goToPage(3); // enrich page
 }
 
@@ -248,6 +250,7 @@ function processSheet(file) {
   document.getElementById('sheetFileMeta').textContent     = size;
   document.getElementById('sheetStatus').textContent       = '✓ Uploaded';
   document.getElementById('sheetStatus').style.color       = 'var(--green)';
+  updateImportButton();
   showToast(`"${file.name}" uploaded`, 'success');
 }
 function removeSheet() {
@@ -256,6 +259,7 @@ function removeSheet() {
   document.getElementById('sheetUploaded').style.display   = 'none';
   document.getElementById('sheetStatus').textContent       = 'Not uploaded';
   document.getElementById('sheetStatus').style.color       = '';
+  updateImportButton();
 }
 
 // --- Voice recorder ---

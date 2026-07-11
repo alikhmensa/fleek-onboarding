@@ -138,8 +138,8 @@
     <section class="page" id="page-connect">
       <div class="page-content connect-page">
         <div class="form-header">
-          <h2>Connect your store</h2>
-          <p>Your sales history is what personalises your sourcing — one click and we import it.</p>
+          <h2>Add your sales history</h2>
+          <p>Connect your store or upload an export — this is what personalises your sourcing.</p>
         </div>
 
         <!-- Shopify -->
@@ -174,6 +174,42 @@
               <div><p class="connected-name" id="shopifyDomainLabel">mystore.myshopify.com</p><p class="connected-meta">Authorized via OAuth</p></div>
             </div>
             <button class="btn-ghost-sm" onclick="disconnectPlatform('shopify')">Disconnect</button>
+          </div>
+        </div>
+
+        <!-- Order spreadsheet -->
+        <div class="enrich-card" id="spreadsheetCard">
+          <div class="enrich-card-header">
+            <div class="enrich-card-icon sheet-icon">📊</div>
+            <div>
+              <h3>Order history spreadsheet</h3>
+              <p>Excel or CSV export from any platform — merged with your imported orders</p>
+            </div>
+            <span class="enrich-count" id="sheetStatus">Not uploaded</span>
+          </div>
+          <div class="sheet-drop-zone" id="sheetDropZone"
+               ondragover="handleDragOver(event)"
+               ondragleave="handleDragLeave(event)"
+               ondrop="handleSheetDrop(event)">
+            <input type="file" id="sheetInput" accept=".xlsx,.xls,.csv" onchange="handleSheetSelect(event)" style="display:none" />
+            <div class="sheet-drop-inner" id="sheetDropInner">
+              <div class="drop-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </div>
+              <p class="drop-title">Drag &amp; drop your spreadsheet</p>
+              <p class="drop-sub">Excel (.xlsx, .xls) or CSV</p>
+              <button class="btn-upload" onclick="document.getElementById('sheetInput').click()">Browse file</button>
+            </div>
+            <div class="sheet-uploaded" id="sheetUploaded" style="display:none">
+              <div class="sheet-file-info">
+                <div class="sheet-file-icon">📊</div>
+                <div>
+                  <p class="sheet-file-name" id="sheetFileName">file.xlsx</p>
+                  <p class="sheet-file-meta" id="sheetFileMeta">0 KB</p>
+                </div>
+              </div>
+              <button class="btn-ghost-sm" onclick="removeSheet()">Remove</button>
+            </div>
           </div>
         </div>
 
@@ -221,7 +257,7 @@
         </div>
 
         <div class="connect-footer">
-          <button class="btn-ghost" onclick="goToPage(3)">No store? Skip — upload a spreadsheet instead</button>
+          <p class="skip-note">Connect a store or upload a spreadsheet to continue</p>
           <button class="btn-primary" id="importBtn" onclick="startImportAndProceed()" disabled>
             Import &amp; continue
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -235,7 +271,7 @@
       <div class="page-content enrich-page">
         <div class="form-header">
           <h2>Tell us about your shop</h2>
-          <p>Optional, but every bit of context sharpens your recommendations.</p>
+          <p>Optional — but a sentence or two sharpens your recommendations.</p>
         </div>
 
         <!-- IMPORTED SUMMARY CHIP -->
@@ -246,42 +282,6 @@
             <span class="chip-sub">Imported orders and listings are used automatically</span>
           </div>
           <div class="chip-check">✓</div>
-        </div>
-
-        <!-- Order spreadsheet -->
-        <div class="enrich-card" id="spreadsheetCard">
-          <div class="enrich-card-header">
-            <div class="enrich-card-icon sheet-icon">📊</div>
-            <div>
-              <h3>Order history spreadsheet</h3>
-              <p>Excel or CSV export from any platform — merged with your imported orders</p>
-            </div>
-            <span class="enrich-count" id="sheetStatus">Not uploaded</span>
-          </div>
-          <div class="sheet-drop-zone" id="sheetDropZone"
-               ondragover="handleDragOver(event)"
-               ondragleave="handleDragLeave(event)"
-               ondrop="handleSheetDrop(event)">
-            <input type="file" id="sheetInput" accept=".xlsx,.xls,.csv" onchange="handleSheetSelect(event)" style="display:none" />
-            <div class="sheet-drop-inner" id="sheetDropInner">
-              <div class="drop-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-              </div>
-              <p class="drop-title">Drag &amp; drop your spreadsheet</p>
-              <p class="drop-sub">Excel (.xlsx, .xls) or CSV</p>
-              <button class="btn-upload" onclick="document.getElementById('sheetInput').click()">Browse file</button>
-            </div>
-            <div class="sheet-uploaded" id="sheetUploaded" style="display:none">
-              <div class="sheet-file-info">
-                <div class="sheet-file-icon">📊</div>
-                <div>
-                  <p class="sheet-file-name" id="sheetFileName">file.xlsx</p>
-                  <p class="sheet-file-meta" id="sheetFileMeta">0 KB</p>
-                </div>
-              </div>
-              <button class="btn-ghost-sm" onclick="removeSheet()">Remove</button>
-            </div>
-          </div>
         </div>
 
         <!-- About your shop: type it or say it -->
