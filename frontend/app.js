@@ -223,6 +223,10 @@ async function connectShopify() {
       showToast(`Shopify store "${domain}" connected!`, 'success');
       return;
     }
+    if (!st.oauth_configured) {
+      showToast('Shopify OAuth keys not set in backend/.env yet — type "mock" to use the demo shop', 'error');
+      return;
+    }
   } catch {
     showToast('Backend unreachable at ' + (API_BASE || window.location.origin), 'error');
     return;

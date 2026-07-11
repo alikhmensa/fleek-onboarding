@@ -57,6 +57,12 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "")
 def connect_shopify(shop: str = Query(description="e.g. mystore.myshopify.com")):
     if shop == "mock":
         return {"status": "connected", "shop": "mock"}
+    if not shopify_oauth.api_key or not shopify_oauth.api_secret:
+        raise HTTPException(
+            status_code=503,
+            detail="Shopify OAuth not configured: set SHOPIFY_API_KEY and SHOPIFY_API_SECRET "
+            "in backend/.env (VEND app in the Partners dashboard), or use shop=mock",
+        )
     return RedirectResponse(shopify_oauth.get_login_url(shop))
 
 
@@ -78,7 +84,11 @@ def callback_shopify(request: Request):
 @app.get("/shopify/status")
 def shopify_status(shop: str) -> dict:
     connected = shop == "mock" or storage.get_shop_token("shopify", shop) is not None
-    return {"shop": shop, "connected": connected}
+    return {
+        "shop": shop,
+        "connected": connected,
+        "oauth_configured": bool(shopify_oauth.api_key and shopify_oauth.api_secret),
+    }
 
 
 @app.get("/shopify/preview")
