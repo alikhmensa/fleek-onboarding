@@ -49,12 +49,10 @@
         <p class="hero-sub">Connect your store or upload your sales history. Fleek learns what you sell, what you're missing and what your buyers pay — then hand-picks wholesale bundles that fit your shelves.</p>
         <div class="hero-platforms">
           <div class="platform-chip">
-            <svg width="18" height="18" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#E53238"/><path d="M7 9h18l-2 14H9L7 9zm4 3v8m4-8v8m4-8v8" stroke="white" stroke-width="2" fill="none"/></svg>eBay
-          </div>
-          <div class="platform-chip">
             <svg width="18" height="18" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#96BF48"/><path d="M12 6c-3.3 0-6 2.7-6 6v14h16V12c0-3.3-2.7-6-6-6z" fill="white"/><circle cx="12" cy="12" r="2" fill="#96BF48"/><circle cx="20" cy="12" r="2" fill="#96BF48"/></svg>Shopify
           </div>
-          <div class="platform-chip chip-more">+ Vinted</div>
+          <div class="platform-chip">Excel / CSV upload</div>
+          <div class="platform-chip chip-more">eBay &amp; Vinted soon</div>
         </div>
         <div class="flow-steps-preview">
           <div class="flow-step-item"><div class="flow-step-num">1</div><span>Register</span></div>
@@ -140,46 +138,8 @@
     <section class="page" id="page-connect">
       <div class="page-content connect-page">
         <div class="form-header">
-          <h2>Connect your stores</h2>
-          <p>Link your marketplaces. Your order history will be securely imported once connected.</p>
-        </div>
-
-        <!-- eBay -->
-        <div class="platform-card" id="ebayCard">
-          <div class="platform-card-header">
-            <div class="platform-logo">
-              <svg viewBox="0 0 80 32" height="28">
-                <text y="26" font-size="28" font-weight="800" font-family="Arial" fill="#E53238">e</text>
-                <text x="18" y="26" font-size="28" font-weight="800" font-family="Arial" fill="#0064D2">b</text>
-                <text x="36" y="26" font-size="28" font-weight="800" font-family="Arial" fill="#F5AF02">a</text>
-                <text x="54" y="26" font-size="28" font-weight="800" font-family="Arial" fill="#86B817">y</text>
-              </svg>
-            </div>
-            <div class="platform-card-info">
-              <h3>eBay</h3>
-              <p>Orders, listings &amp; tracking data</p>
-            </div>
-            <span class="status-badge status-not-connected" id="ebayStatus">Not connected</span>
-          </div>
-          <div class="platform-card-body" id="ebayBody">
-            <div class="platform-features">
-              <span class="feature-tag">Orders</span><span class="feature-tag">Listings</span>
-              <span class="feature-tag">Tracking</span><span class="feature-tag">Profile</span>
-            </div>
-            <div class="platform-auth">
-              <p class="auth-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure OAuth – redirects to eBay to authorize</p>
-              <button class="btn-platform" id="ebayConnectBtn" onclick="connectEbay()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Connect eBay
-              </button>
-            </div>
-          </div>
-          <div class="platform-card-connected" id="ebayConnected" style="display:none">
-            <div class="connected-info">
-              <div class="connected-avatar">e</div>
-              <div><p class="connected-name">eBay account connected</p><p class="connected-meta">Authorized via OAuth</p></div>
-            </div>
-            <button class="btn-ghost-sm" onclick="disconnectPlatform('ebay')">Disconnect</button>
-          </div>
+          <h2>Connect your store</h2>
+          <p>Your sales history is what personalises your sourcing — one click and we import it.</p>
         </div>
 
         <!-- Shopify -->
@@ -194,27 +154,19 @@
             </div>
             <div class="platform-card-info">
               <h3>Shopify</h3>
-              <p>Products, orders &amp; fulfilment</p>
+              <p>Orders and listings, imported automatically</p>
             </div>
             <span class="status-badge status-not-connected" id="shopifyStatus">Not connected</span>
           </div>
           <div class="platform-card-body" id="shopifyBody">
-            <div class="platform-features">
-              <span class="feature-tag">Orders</span><span class="feature-tag">Products</span>
-              <span class="feature-tag">Fulfilment</span><span class="feature-tag">Profile</span>
-            </div>
-            <div class="platform-auth">
-              <div class="shopify-input-row">
-                <div class="input-with-suffix">
-                  <input type="text" id="shopDomain" placeholder="your-store (or: mock)" />
-                  <span class="input-suffix">.myshopify.com</span>
-                </div>
-                <button class="btn-platform" onclick="connectShopify()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Connect
-                </button>
+            <div class="shopify-input-row">
+              <div class="input-with-suffix">
+                <input type="text" id="shopDomain" placeholder="your-store (or: mock)" />
+                <span class="input-suffix">.myshopify.com</span>
               </div>
-              <p class="auth-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure OAuth – authorize in Shopify</p>
+              <button class="btn-platform" onclick="connectShopify()">Connect</button>
             </div>
+            <p class="auth-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure OAuth — you approve access in Shopify</p>
           </div>
           <div class="platform-card-connected" id="shopifyConnected" style="display:none">
             <div class="connected-info">
@@ -225,39 +177,7 @@
           </div>
         </div>
 
-        <!-- Vinted -->
-        <div class="platform-card" id="vintedCard">
-          <div class="platform-card-header">
-            <div class="platform-logo">
-              <svg viewBox="0 0 60 28" height="22"><text y="22" font-size="22" font-weight="800" font-family="Arial" fill="#09B1BA">vinted</text></svg>
-            </div>
-            <div class="platform-card-info">
-              <h3>Vinted</h3>
-              <p>Listings &amp; profile (no order data)</p>
-            </div>
-            <span class="status-badge status-not-connected" id="vintedStatus">Not connected</span>
-          </div>
-          <div class="platform-card-body" id="vintedBody">
-            <div class="platform-features">
-              <span class="feature-tag">Listings</span><span class="feature-tag">Photos</span>
-              <span class="feature-tag">Profile</span><span class="feature-tag info-tag">No order data</span>
-            </div>
-            <div class="platform-auth">
-              <input type="url" id="vintedUrl" placeholder="https://www.vinted.co.uk/member/12345-username" />
-              <button class="btn-platform vinted-btn" onclick="connectVinted()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Paste &amp; Connect
-              </button>
-              <p class="auth-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>No login required – paste your public profile URL</p>
-            </div>
-          </div>
-          <div class="platform-card-connected" id="vintedConnected" style="display:none">
-            <div class="connected-info">
-              <div class="connected-avatar vinted-av">V</div>
-              <div><p class="connected-name" id="vintedLabel">Vinted profile</p><p class="connected-meta">Connected via profile URL</p></div>
-            </div>
-            <button class="btn-ghost-sm" onclick="disconnectPlatform('vinted')">Disconnect</button>
-          </div>
-        </div>
+        <p class="alt-connect-note">Sell on eBay or Vinted? Those imports are coming soon — you can upload an order spreadsheet in the next step instead.</p>
 
         <!-- Import progress (shown while fetching) -->
         <div class="import-progress-bar" id="importProgress" style="display:none">
@@ -270,7 +190,7 @@
         </div>
 
         <div class="connect-footer">
-          <p class="skip-note">You can always add more stores from your dashboard later</p>
+          <button class="btn-ghost" onclick="goToPage(3)">No store? Skip — upload a spreadsheet instead</button>
           <button class="btn-primary" id="importBtn" onclick="startImportAndProceed()" disabled>
             Import &amp; continue
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -480,7 +400,7 @@
         <button class="modal-close" onclick="closeHelp()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="help-item"><div class="help-icon">🔗</div><div><strong>Connecting eBay / Shopify</strong><p>You'll be redirected to OAuth. Type your store name and approve the app on Shopify's consent screen. In the demo environment, enter "mock" as the store name.</p></div></div>
+        <div class="help-item"><div class="help-icon">🔗</div><div><strong>Connecting Shopify</strong><p>You'll be redirected to OAuth. Type your store name and approve the app on Shopify's consent screen. In the demo environment, enter "mock" as the store name.</p></div></div>
         <div class="help-item"><div class="help-icon">🎙️</div><div><strong>Voice note</strong><p>Requires microphone permission. Your browser may ask for it when you press Record.</p></div></div>
         <div class="help-item"><div class="help-icon">📊</div><div><strong>Spreadsheet upload</strong><p>Supports .xlsx, .xls, and .csv files. Use any export from eBay, Shopify, or Vinted.</p></div></div>
         <div class="help-item"><div class="help-icon">📧</div><div><strong>Still stuck?</strong><p>Email <a href="mailto:support@fleek.com" class="link">support@fleek.com</a></p></div></div>

@@ -89,15 +89,6 @@ function togglePassword() {
 }
 
 // ── PAGE 3: CONNECT STORES ─────────────────────────────
-async function connectEbay() {
-  const btn = document.getElementById('ebayConnectBtn');
-  btn.classList.add('loading');
-  btn.textContent = 'Connecting…';
-  await simulateOAuth();
-  setPlatformConnected('ebay');
-  showToast('eBay connected!', 'success');
-}
-
 async function connectShopify() {
   const raw = document.getElementById('shopDomain').value.trim();
   if (!raw) { document.getElementById('shopDomain').focus(); showToast('Enter your Shopify store name', 'error'); return; }
@@ -143,24 +134,6 @@ async function connectShopify() {
   showToast('Shopify connection timed out — try again', 'error');
 }
 
-async function connectVinted() {
-  const url = document.getElementById('vintedUrl').value.trim();
-  if (!url) { document.getElementById('vintedUrl').focus(); showToast('Enter your Vinted profile URL', 'error'); return; }
-  const match = url.match(/\/member\/(\d+)/);
-  if (!match) { showToast('Invalid Vinted URL. Example: https://www.vinted.co.uk/member/12345-username', 'error'); return; }
-  state.vintedSellerId = match[1];
-  document.getElementById('vintedLabel').textContent = `Vinted seller #${state.vintedSellerId}`;
-
-  try {
-    await fetchWithFallback(`${API_BASE}/connect/vinted`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profile_url: url }),
-    }, { status: 'connected' });
-  } catch {}
-  setPlatformConnected('vinted');
-  showToast('Vinted profile connected!', 'success');
-}
-
 function setPlatformConnected(platform) {
   state.connectedPlatforms[platform] = true;
   document.getElementById(`${platform}Body`).style.display = 'none';
@@ -178,11 +151,6 @@ function disconnectPlatform(platform) {
   document.getElementById(`${platform}Card`).classList.remove('connected-state');
   document.getElementById(`${platform}Status`).className = 'status-badge status-not-connected';
   document.getElementById(`${platform}Status`).textContent = 'Not connected';
-  if (platform === 'ebay') {
-    const btn = document.getElementById('ebayConnectBtn');
-    btn.classList.remove('loading');
-    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Connect eBay`;
-  }
   updateImportButton();
   showToast(`${platform.charAt(0).toUpperCase() + platform.slice(1)} disconnected`, 'info');
 }
@@ -231,7 +199,6 @@ async function startImportAndProceed() {
     totalItems  += preview.items;
     connectedList.push('shopify');
   }
-  ['ebay', 'vinted'].forEach(p => { if (state.connectedPlatforms[p]) connectedList.push(p); });
   state.importedData = { orders: totalOrders, items: totalItems, platforms: connectedList };
 
   fill.style.width = '100%';
@@ -643,62 +610,6 @@ async function fetchWithFallback(url, options, fallback) {
     console.warn('[FleekCompanion] API unavailable – using mock data');
     return fallback;
   }
-}
-
-// ── MOCK DATA ──────────────────────────────────────────
-function generateMockData() {
-  const now = new Date();
-  const ago = n => new Date(now - n * 86400000).toISOString();
-  const result = {};
-
-  if (state.connectedPlatforms.ebay) {
-    result.ebay = {
-      profile: { platform:'ebay', seller_id:'ebay_user', username:'fashion_seller_uk', rating:98.5, total_items_sold:312 },
-      items: [
-        { platform:'ebay', item_id:'e001', title:'Zara Floral Midi Dress – Size M', price:24.99, currency:'GBP', brand:'Zara', condition:'Very Good', size:'M', status:'active' },
-        { platform:'ebay', item_id:'e002', title:'ASOS Wide Leg Linen Trousers', price:18.50, currency:'GBP', brand:'ASOS', condition:'Good', size:'12', status:'active' },
-        { platform:'ebay', item_id:'e003', title:'Nike Air Force 1 White UK7', price:55.00, currency:'GBP', brand:'Nike', condition:'Very Good', size:'UK7', status:'sold' },
-      ],
-      orders: [
-        { platform:'ebay', order_id:'ORD-8821', item_id:'e003', title:'Nike Air Force 1 White UK7', price:55.00, currency:'GBP', buyer_username:'buyer_sarah92', sold_at:ago(2), status:'shipped', tracking_number:'1Z999AA10123456784' },
-        { platform:'ebay', order_id:'ORD-8756', item_id:'e001', title:'Zara Floral Midi Dress', price:24.99, currency:'GBP', buyer_username:'emma_k', sold_at:ago(5), status:'delivered' },
-        { platform:'ebay', order_id:'ORD-8701', item_id:'e004', title:'H&M Oversized Blazer Black', price:32.00, currency:'GBP', buyer_username:'style_hunter', sold_at:ago(9), status:'delivered' },
-        { platform:'ebay', order_id:'ORD-8640', item_id:'e005', title:'Topshop Ribbed Knit Sweater', price:14.99, currency:'GBP', buyer_username:'nora_fashion', sold_at:ago(14), status:'pending' },
-      ],
-      total_items_fetched: 3, total_orders_fetched: 4,
-    };
-  }
-
-  if (state.connectedPlatforms.shopify) {
-    result.shopify = {
-      profile: { platform:'shopify', seller_id: state.shopifyDomain || 'demo.myshopify.com', username:'demo-store', rating:null },
-      items: [
-        { platform:'shopify', item_id:'s001', title:"Vintage Levi's 501 Jeans W28 L30", price:65.00, currency:'GBP', brand:"Levi's", condition:'Good', size:'W28 L30', status:'active' },
-        { platform:'shopify', item_id:'s002', title:'Stone Island Patch Logo Hoodie', price:120.00, currency:'GBP', brand:'Stone Island', condition:'Very Good', size:'L', status:'active' },
-        { platform:'shopify', item_id:'s003', title:'Adidas Samba OG White Green', price:78.00, currency:'GBP', brand:'Adidas', condition:'New', size:'UK8', status:'active' },
-      ],
-      orders: [
-        { platform:'shopify', order_id:'SHP-1042', item_id:'s001', title:"Vintage Levi's 501 Jeans", price:65.00, currency:'GBP', buyer_username:'james_t', sold_at:ago(1), status:'fulfilled', tracking_number:'RM123456789GB' },
-        { platform:'shopify', order_id:'SHP-1038', item_id:'s003', title:'Adidas Samba OG White Green', price:78.00, currency:'GBP', buyer_username:'alex_b', sold_at:ago(4), status:'shipped', tracking_number:'RM987654321GB' },
-        { platform:'shopify', order_id:'SHP-1021', item_id:'s002', title:'Stone Island Patch Logo Hoodie', price:120.00, currency:'GBP', buyer_username:'streetwear_fan', sold_at:ago(7), status:'delivered' },
-      ],
-      total_items_fetched: 3, total_orders_fetched: 3,
-    };
-  }
-
-  if (state.connectedPlatforms.vinted) {
-    result.vinted = {
-      profile: { platform:'vinted', seller_id: state.vintedSellerId || '99999', username:`vinted_user_${state.vintedSellerId}`, rating:4.9 },
-      items: [
-        { platform:'vinted', item_id:'v001', title:'M&S Pure Linen Shirt White 10', price:12.00, currency:'GBP', brand:'M&S', condition:'Good', size:'10', status:'active' },
-        { platform:'vinted', item_id:'v002', title:'Cos Wool Blend Coat Camel XS', price:85.00, currency:'GBP', brand:'COS', condition:'Very Good', size:'XS', status:'active' },
-      ],
-      orders: [],
-      total_items_fetched: 2, total_orders_fetched: 0,
-    };
-  }
-
-  return result;
 }
 
 // ── INIT ───────────────────────────────────────────────
