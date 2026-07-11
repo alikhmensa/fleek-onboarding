@@ -332,7 +332,7 @@ async function startImportAndProceed() {
   state.importedData = { orders: totalOrders, items: totalItems, platforms: connectedList };
 
   fill.style.width = '100%';
-  label.textContent = `Import complete — ${totalOrders} orders, ${totalItems} listings`;
+  label.textContent = totalOrders > 0 ? `Import complete — ${totalOrders} orders, ${totalItems} listings` : `Import complete — ${totalItems} listings`;
   sub.textContent = '';
   await sleep(600);
   progress.style.display = 'none';
@@ -345,7 +345,11 @@ async function startImportAndProceed() {
     `${totalOrders} orders & ${totalItems} listings from ${sources.join(' + ') || 'your data'}` +
     (state.sheetFile ? ' (spreadsheet merges at the final step)' : '');
 
-  showToast(connectedList.length ? `✓ Imported ${totalOrders} orders` : '✓ Spreadsheet ready', 'success');
+  const importMsg = !connectedList.length ? '✓ Spreadsheet ready'
+    : totalOrders > 0 ? `✓ Imported ${totalOrders} orders & ${totalItems} listings`
+    : totalItems > 0 ? `✓ Imported ${totalItems} live listings — we'll profile your shop from your current stock`
+    : '✓ Store connected';
+  showToast(importMsg, 'success');
   confirmAndFinish();
 }
 
