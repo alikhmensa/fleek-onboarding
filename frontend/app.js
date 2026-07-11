@@ -246,7 +246,7 @@ async function startImportAndProceed() {
     `${totalOrders} orders & ${totalItems} listings imported from ${platforms || 'connected stores'}`;
 
   showToast(`✓ Imported ${totalOrders} orders from ${connectedList.length} store${connectedList.length !== 1 ? 's' : ''}`, 'success');
-  goToPage(4);
+  goToPage(3); // enrich page
 }
 
 // ── PAGE 4: ENRICH ─────────────────────────────────────
