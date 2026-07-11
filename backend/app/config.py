@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BACKEND_DIR / "data"
-DB_PATH = DATA_DIR / "app.db"
+DB_DIR = Path(os.getenv("DB_DIR", DATA_DIR))
+DB_PATH = DB_DIR / "app.db"
 INVENTORY_PATH = DATA_DIR / "inventory.json"
 EMBEDDINGS_PATH = DATA_DIR / "embeddings.json"
 FIXTURES_DIR = DATA_DIR / "fixtures"
