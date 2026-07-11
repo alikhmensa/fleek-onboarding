@@ -14,6 +14,11 @@ cp .env.example .env          # add GOOGLE_API_KEY (+ optionally PINECONE_API_KE
 .venv/bin/uvicorn app.main:app --reload      # http://localhost:8000/docs
 ```
 
+The onboarding UI (repo-root `frontend/`) is served by the same process at
+**http://localhost:8000/** — type `mock` as the Shopify store name to run the whole
+flow without credentials. (The optional email-verification service is separate:
+`cd frontend/email-server && npm install && node server.js`.)
+
 Runs degraded but alive with **no keys at all**: heuristic profile, keyword-overlap
 search, template rationales. Every fallback logs loudly, so you can tell.
 

@@ -19,7 +19,7 @@ from fastapi.responses import RedirectResponse
 
 from . import storage
 from .bundle import build_bundles
-from .config import DEFAULT_MARGIN_MULTIPLE, FIXTURES_DIR, INVENTORY_PATH
+from .config import BACKEND_DIR, DEFAULT_MARGIN_MULTIPLE, FIXTURES_DIR, INVENTORY_PATH
 from .connectors.mock_shop import mock_shop_data
 from .connectors.shopify import ShopifyClient, ShopifyOAuth
 from .economics import filter_viable
@@ -79,6 +79,18 @@ def callback_shopify(request: Request):
 def shopify_status(shop: str) -> dict:
     connected = shop == "mock" or storage.get_shop_token("shopify", shop) is not None
     return {"shop": shop, "connected": connected}
+
+
+@app.get("/shopify/preview")
+def shopify_preview(shop: str) -> dict:
+    """Order/listing counts for the frontend's import step."""
+    data = _fetch_shop_data(shop)
+    return {
+        "shop": shop,
+        "orders": data.total_orders_fetched,
+        "items": data.total_items_fetched,
+        "shop_name": data.profile.username if data.profile else shop,
+    }
 
 
 def _fetch_shop_data(shop: str):
@@ -161,3 +173,12 @@ def recommendations(
 @app.get("/health")
 def health() -> dict:
     return {"ok": True}
+
+
+# Serve the frontend (repo-root frontend/) when present, so one server runs the
+# whole demo at http://localhost:8000/ — API routes above take precedence.
+_frontend_dir = BACKEND_DIR.parent / "frontend"
+if _frontend_dir.is_dir():
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount("/", StaticFiles(directory=_frontend_dir, html=True), name="frontend")
