@@ -388,15 +388,27 @@
       </div>
     </section>
 
-  </main>
+    <!-- ─── PAGE 5: SELLER PROFILE ─── -->
+    <section class="page" id="page-profile">
+      <div class="page-content profile-page">
+        <div class="profile-topbar">
+          <button class="btn-ghost" onclick="goToPage(4)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back to marketplace
+          </button>
+          <div class="profile-tabs">
+            <button class="ptab active" id="ptab-profile" onclick="showProfileTab('profile')">Profile</button>
+            <button class="ptab" id="ptab-orders" onclick="showProfileTab('orders')">Order history</button>
+            <button class="ptab" id="ptab-words" onclick="showProfileTab('words')">Your words</button>
+          </div>
+        </div>
+        <div id="tab-profile" class="ptab-panel"><div class="recs-loading"><div class="spinner"></div><span>Writing your profile…</span></div></div>
+        <div id="tab-orders" class="ptab-panel" style="display:none"></div>
+        <div id="tab-words" class="ptab-panel" style="display:none"></div>
+      </div>
+    </section>
 
-  <!-- PROFILE OVERLAY -->
-  <div class="profile-overlay" id="profileOverlay" style="display:none" onclick="if(event.target===this)closeProfile()">
-    <div class="profile-panel">
-      <button class="profile-close" onclick="closeProfile()">✕</button>
-      <div id="profileContent"><div class="recs-loading"><div class="spinner"></div><span>Writing your profile…</span></div></div>
-    </div>
-  </div>
+  </main>
 
   <!-- TOAST -->
   <div class="toast" id="toast"></div>

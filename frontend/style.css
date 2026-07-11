@@ -492,3 +492,22 @@ code{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padd
 .btn-logout:hover{background:rgba(217,45,32,0.06);border-color:var(--red);}
 
 .optional-tag{font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;background:var(--bg2);border:1px solid var(--border-h);color:var(--text3);border-radius:4px;padding:3px 8px;vertical-align:middle;margin-left:8px;}
+
+/* ── PROFILE PAGE (tabs) ── */
+.profile-page{display:flex;flex-direction:column;gap:22px;}
+.profile-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.profile-tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px;}
+.ptab{padding:8px 18px;border-radius:6px;font-size:0.85rem;font-weight:700;color:var(--text2);transition:var(--transition);}
+.ptab.active{background:var(--black);color:var(--yellow);}
+.ptab-panel{animation:fadeIn 0.25s ease;}
+.orders-table-wrap{overflow-x:auto;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);margin-top:12px;}
+.orders-table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+.orders-table th{text-align:left;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:var(--text3);padding:12px 14px;border-bottom:1.5px solid var(--border);}
+.orders-table td{padding:10px 14px;border-bottom:1px solid var(--border);}
+.orders-table tr:last-child td{border-bottom:none;}
+.orders-table .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;}
+.src-chip{font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:4px;background:var(--bg2);border:1px solid var(--border);}
+.src-shopify{background:rgba(149,191,71,0.15);border-color:#95BF47;}
+.src-listing{background:var(--yellow-soft);border-color:var(--yellow-dark);}
+.src-spreadsheet{background:rgba(23,138,68,0.08);border-color:rgba(23,138,68,0.4);}
+.words-quote{background:#fff;border:1px solid var(--border);border-left:4px solid var(--yellow);border-radius:var(--radius-sm);padding:20px 24px;font-size:0.95rem;line-height:1.8;color:var(--text);font-style:italic;margin:12px 0;white-space:pre-wrap;}

@@ -13,6 +13,7 @@ const PAGES = [
   'page-enrich',    // tell us about your shop (words/voice) — first
   'page-connect',   // then sales data, optional
   'page-success',
+  'page-profile',   // seller profile: story / order history / your words
 ];
 
 // ── App State ──────────────────────────────────────────
@@ -49,7 +50,7 @@ function goToPage(index) {
   state.currentPage = index;
   updateStepDots(index);
   // marketplace page gets the real Fleek navbar, onboarding keeps the stepper
-  const isHome = PAGES[index] === 'page-success';
+  const isHome = PAGES[index] === 'page-success' || PAGES[index] === 'page-profile';
   document.getElementById('onboardNav').style.display = isHome ? 'none' : 'flex';
   document.getElementById('marketNav').style.display  = isHome ? 'flex' : 'none';
   if (isHome) {
@@ -644,25 +645,73 @@ async function fetchWithFallback(url, options, fallback) {
 // ── PROFILE PAGE (avatar click) ────────────────────────
 async function openProfile() {
   if (!state.sellerId) { showToast('Complete onboarding first', 'error'); return; }
-  const overlay = document.getElementById('profileOverlay');
-  overlay.style.display = 'flex';
-  const el = document.getElementById('profileContent');
+  goToPage(5);
+  showProfileTab('profile');
+  const el = document.getElementById('tab-profile');
   el.innerHTML = '<div class="recs-loading"><div class="spinner"></div><span>Writing your profile…</span></div>';
 
-  let data;
   try {
-    const res = await fetch(`${API_BASE}/seller/${encodeURIComponent(state.sellerId)}/story`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    data = await res.json();
+    const [storyRes, ordersRes] = await Promise.all([
+      fetch(`${API_BASE}/seller/${encodeURIComponent(state.sellerId)}/story`),
+      fetch(`${API_BASE}/seller/${encodeURIComponent(state.sellerId)}/orders`),
+    ]);
+    if (!storyRes.ok) throw new Error(`HTTP ${storyRes.status}`);
+    const data = await storyRes.json();
+    const orders = ordersRes.ok ? (await ordersRes.json()).orders : [];
+    el.innerHTML = renderProfilePage(data.profile, data.story);
+    renderOrdersTab(orders);
+    renderWordsTab(data.profile.source_description);
   } catch (err) {
     el.innerHTML = `<p class="recs-empty">Could not load profile (${err.message}).</p>`;
-    return;
   }
-  el.innerHTML = renderProfilePage(data.profile, data.story);
 }
 
-function closeProfile() {
-  document.getElementById('profileOverlay').style.display = 'none';
+function showProfileTab(name) {
+  for (const t of ['profile', 'orders', 'words']) {
+    document.getElementById(`tab-${t}`).style.display = t === name ? '' : 'none';
+    document.getElementById(`ptab-${t}`).classList.toggle('active', t === name);
+  }
+}
+
+const SOURCE_LABELS = { shopify: 'Shopify order', listing: 'Live listing', spreadsheet: 'Spreadsheet' };
+
+function renderOrdersTab(orders) {
+  const el = document.getElementById('tab-orders');
+  if (!orders.length) {
+    el.innerHTML = `<p class="recs-empty">No imported sales history — this profile was built from your own description.</p>`;
+    return;
+  }
+  const proxyNote = orders.every(o => o.source === 'listing')
+    ? `<p class="recs-note">Your store had no order history yet, so these are your live listings — they stand in as the sales signal.</p>` : '';
+  el.innerHTML = `
+    <h3 class="market-h">The data behind your profile</h3>
+    <p class="market-sub">${orders.length} rows imported at onboarding</p>
+    ${proxyNote}
+    <div class="orders-table-wrap"><table class="orders-table">
+      <thead><tr><th>Date</th><th>Item</th><th>Brand</th><th class="num">Price</th><th>Source</th></tr></thead>
+      <tbody>${orders.map(o => `
+        <tr>
+          <td>${o.sold_at ? String(o.sold_at).slice(0, 10) : '—'}</td>
+          <td>${o.title || '—'}</td>
+          <td>${o.vendor || '—'}</td>
+          <td class="num">£${Number(o.price).toFixed(2)}</td>
+          <td><span class="src-chip src-${o.source}">${SOURCE_LABELS[o.source] || o.source || '—'}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+function renderWordsTab(description) {
+  const el = document.getElementById('tab-words');
+  if (!description) {
+    el.innerHTML = `<p class="recs-empty">You didn't add a description or voice note during onboarding.</p>`;
+    return;
+  }
+  el.innerHTML = `
+    <h3 class="market-h">What you told us</h3>
+    <p class="market-sub">Typed notes and voice-note transcript, exactly as the AI received them</p>
+    <blockquote class="words-quote">${description}</blockquote>
+    <p class="recs-note">These words feed directly into your profile — mention brands, prices or wishlist categories and the recommendations follow.</p>`;
 }
 
 function renderProfilePage(p, s) {

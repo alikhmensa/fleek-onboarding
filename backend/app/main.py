@@ -193,14 +193,17 @@ async def onboard(
     if shopify_shop:
         shopify_shop = _clean_shop(shopify_shop)
         shop_data = _fetch_shop_data(shopify_shop)
-        frames.append(shopify_orders_to_df(shop_data.orders, shop_data.items))
         listings_proxy = not shop_data.orders  # listings standing in for sales
+        shop_df = shopify_orders_to_df(shop_data.orders, shop_data.items)
+        if not shop_df.empty:
+            shop_df = shop_df.assign(source="listing" if listings_proxy else "shopify")
+        frames.append(shop_df)
         active_listings = [
             f"{i.title} ({i.category or 'uncategorised'}, £{i.price:.0f})" for i in shop_data.items
         ]
     if file is not None:
         try:
-            frames.append(parse_orders(await file.read(), file.filename or ""))
+            frames.append(parse_orders(await file.read(), file.filename or "").assign(source="spreadsheet"))
         except ValueError as e:
             raise HTTPException(status_code=422, detail=str(e))
 
@@ -230,8 +233,13 @@ async def onboard(
         # words-only onboarding: profile built purely from the description/voice
         profile = build_profile_from_description(description, budget, margin_multiple)
 
+    profile.source_description = description or None
+
     seller_id = storage.new_seller_id()
     storage.save_profile(seller_id, profile)
+    if frames:
+        rows = df.head(300).where(pd.notna(df.head(300)), None).to_dict("records")
+        storage.save_orders(seller_id, rows)
     user_id = user_id_from_header(authorization)
     if user_id:
         storage.set_user_seller(user_id, seller_id)  # session -> dashboard survives refresh
@@ -271,6 +279,14 @@ def seller_story(seller_id: str) -> dict:
         story = generate_story(profile)
         storage.save_story(seller_id, story)
     return {"seller_id": seller_id, "profile": profile.model_dump(), "story": story}
+
+
+@app.get("/seller/{seller_id}/orders")
+def seller_orders(seller_id: str) -> dict:
+    """The order history (or listings proxy) this seller's profile was built from."""
+    if storage.get_profile(seller_id) is None:
+        raise HTTPException(status_code=404, detail=f"unknown seller_id {seller_id!r}")
+    return {"orders": storage.get_orders(seller_id)}
 
 
 @app.get("/inventory")

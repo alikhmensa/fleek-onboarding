@@ -28,6 +28,11 @@ def init_db() -> None:
             "seller_id TEXT PRIMARY KEY, story TEXT NOT NULL, created_at TEXT NOT NULL)"
         )
         conn.execute(
+            "CREATE TABLE IF NOT EXISTS seller_orders ("
+            "seller_id TEXT NOT NULL, title TEXT, price REAL, quantity INTEGER, "
+            "sold_at TEXT, vendor TEXT, source TEXT)"
+        )
+        conn.execute(
             "CREATE TABLE IF NOT EXISTS users ("
             "user_id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, "
             "first_name TEXT, last_name TEXT, business_name TEXT, seller_type TEXT, "
@@ -113,3 +118,22 @@ def get_profile(seller_id: str) -> SellerProfile | None:
     with _conn() as conn:
         row = conn.execute("SELECT profile FROM profiles WHERE seller_id = ?", (seller_id,)).fetchone()
     return SellerProfile(**json.loads(row[0])) if row else None
+
+
+def save_orders(seller_id: str, rows: list[dict]) -> None:
+    with _conn() as conn:
+        conn.executemany(
+            "INSERT INTO seller_orders VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [(seller_id, r.get("title"), r.get("price"), r.get("quantity"),
+              r.get("created_at"), r.get("vendor"), r.get("source")) for r in rows],
+        )
+
+
+def get_orders(seller_id: str) -> list[dict]:
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT title, price, quantity, sold_at, vendor, source FROM seller_orders "
+            "WHERE seller_id = ? ORDER BY sold_at DESC", (seller_id,)
+        ).fetchall()
+    keys = ["title", "price", "quantity", "sold_at", "vendor", "source"]
+    return [dict(zip(keys, r)) for r in rows]

@@ -28,6 +28,7 @@ class SellerProfile(BaseModel):
     assumed_margin_multiple: float = 3.0
     budget: float
     stats: ShopStats | None = None
+    source_description: str | None = None  # what the seller told us (incl. voice transcript)
 
 
 class InventoryItem(BaseModel):
