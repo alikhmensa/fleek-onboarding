@@ -23,6 +23,24 @@ def init_db() -> None:
             "platform TEXT NOT NULL, shop TEXT NOT NULL, access_token TEXT NOT NULL, "
             "created_at TEXT NOT NULL, PRIMARY KEY (platform, shop))"
         )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS seller_stories ("
+            "seller_id TEXT PRIMARY KEY, story TEXT NOT NULL, created_at TEXT NOT NULL)"
+        )
+
+
+def save_story(seller_id: str, story: dict) -> None:
+    with _conn() as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO seller_stories VALUES (?, ?, ?)",
+            (seller_id, json.dumps(story), datetime.now(timezone.utc).isoformat()),
+        )
+
+
+def get_story(seller_id: str) -> dict | None:
+    with _conn() as conn:
+        row = conn.execute("SELECT story FROM seller_stories WHERE seller_id = ?", (seller_id,)).fetchone()
+    return json.loads(row[0]) if row else None
 
 
 def save_shop_token(platform: str, shop: str, access_token: str) -> None:

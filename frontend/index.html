@@ -56,7 +56,7 @@
         <span class="mnav-icon" onclick="showToast('Your cart is empty — add a bundle below','info')">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
         </span>
-        <span class="mnav-avatar" id="navAvatar">FL</span>
+        <span class="mnav-avatar" id="navAvatar" onclick="openProfile()" title="Your profile">FL</span>
       </div>
     </div>
   </nav>
@@ -399,6 +399,14 @@
     </section>
 
   </main>
+
+  <!-- PROFILE OVERLAY -->
+  <div class="profile-overlay" id="profileOverlay" style="display:none" onclick="if(event.target===this)closeProfile()">
+    <div class="profile-panel">
+      <button class="profile-close" onclick="closeProfile()">✕</button>
+      <div id="profileContent"><div class="recs-loading"><div class="spinner"></div><span>Writing your profile…</span></div></div>
+    </div>
+  </div>
 
   <!-- TOAST -->
   <div class="toast" id="toast"></div>

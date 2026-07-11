@@ -550,6 +550,89 @@ async function fetchWithFallback(url, options, fallback) {
 }
 
 
+
+// ── PROFILE PAGE (avatar click) ────────────────────────
+async function openProfile() {
+  if (!state.sellerId) { showToast('Complete onboarding first', 'error'); return; }
+  const overlay = document.getElementById('profileOverlay');
+  overlay.style.display = 'flex';
+  const el = document.getElementById('profileContent');
+  el.innerHTML = '<div class="recs-loading"><div class="spinner"></div><span>Writing your profile…</span></div>';
+
+  let data;
+  try {
+    const res = await fetch(`${API_BASE}/seller/${encodeURIComponent(state.sellerId)}/story`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (err) {
+    el.innerHTML = `<p class="recs-empty">Could not load profile (${err.message}).</p>`;
+    return;
+  }
+  el.innerHTML = renderProfilePage(data.profile, data.story);
+}
+
+function closeProfile() {
+  document.getElementById('profileOverlay').style.display = 'none';
+}
+
+function renderProfilePage(p, s) {
+  const u = state.user;
+  const initials = ((u.firstName[0] || 'F') + (u.lastName[0] || 'L')).toUpperCase();
+  const band = p.price_band;
+  const st = p.stats;
+
+  const statTiles = st ? `
+    <div class="pr-stats">
+      <div class="pr-stat"><span class="pr-stat-v">£${Number(st.est_monthly_revenue).toLocaleString()}</span><span class="pr-stat-l">est. monthly revenue</span></div>
+      <div class="pr-stat"><span class="pr-stat-v">${st.items_per_week}</span><span class="pr-stat-l">pieces sold / week</span></div>
+      <div class="pr-stat"><span class="pr-stat-v">£${st.avg_item_price.toFixed(0)}</span><span class="pr-stat-l">avg. sale price</span></div>
+      <div class="pr-stat"><span class="pr-stat-v">${st.orders_analysed}</span><span class="pr-stat-l">sales analysed</span></div>
+      ${st.active_listings ? `<div class="pr-stat"><span class="pr-stat-v">${st.active_listings}</span><span class="pr-stat-l">active listings</span></div>` : ''}
+      <div class="pr-stat"><span class="pr-stat-v">£${Number(p.budget).toFixed(0)}</span><span class="pr-stat-l">restock budget</span></div>
+    </div>` : '';
+
+  const bandPct = band.max > band.min ? ((band.median - band.min) / (band.max - band.min)) * 100 : 50;
+
+  return `
+    <div class="pr-header">
+      <div class="pr-avatar">${initials}</div>
+      <div class="pr-id">
+        <h2>${u.businessName || 'Your shop'}</h2>
+        <p>${u.firstName} ${u.lastName}${u.email ? ' · ' + u.email : ''}${state.shopifyDomain ? ' · ' + state.shopifyDomain : ''}</p>
+        <p class="pr-headline">"${s.headline}"</p>
+      </div>
+    </div>
+
+    ${statTiles}
+    <p class="pr-size">${s.size_estimate || ''}</p>
+
+    <div class="pr-grid">
+      <div class="pr-card"><h4>About this shop</h4><p>${s.about}</p></div>
+      <div class="pr-card"><h4>Who buys from you</h4><p>${s.buyer_persona}</p></div>
+      <div class="pr-card"><h4>What's working</h4><ul>${s.strengths.map(x => `<li>${x}</li>`).join('')}</ul></div>
+      <div class="pr-card"><h4>Where to grow</h4><ul>${s.opportunities.map(x => `<li>${x}</li>`).join('')}</ul></div>
+      <div class="pr-card pr-card-wide"><h4>Sourcing strategy</h4><p>${s.strategy}</p></div>
+    </div>
+
+    <div class="pr-bonnet">
+      <h4>Under the bonnet <span class="pr-bonnet-sub">— the machine profile driving your recommendations</span></h4>
+      <div class="pr-tags">
+        ${p.aesthetic.map(a => `<span class="profile-chip chip-aesthetic">${a}</span>`).join('')}
+        ${p.saturation.gaps.map(g => `<span class="profile-chip chip-gap">gap: ${g}</span>`).join('')}
+        ${p.saturation.oversupplied.map(o => `<span class="profile-chip chip-over">saturated: ${o}</span>`).join('')}
+        <span class="profile-chip chip-band">target margin ≥${p.assumed_margin_multiple}×</span>
+      </div>
+      <div class="pr-band">
+        <div class="pr-band-track"><div class="pr-band-marker" style="left:${bandPct}%"></div></div>
+        <div class="pr-band-labels"><span>£${band.min.toFixed(0)}</span><span>median £${band.median.toFixed(0)}</span><span>£${band.max.toFixed(0)}</span></div>
+      </div>
+      <details class="pr-json">
+        <summary>Raw profile JSON (what the vector search and economics filter consume)</summary>
+        <pre>${JSON.stringify(p, null, 2)}</pre>
+      </details>
+    </div>`;
+}
+
 // ── MARKETPLACE HOME ───────────────────────────────────
 const market = { offset: 0, limit: 24, total: 0, category: null, q: null };
 

@@ -23,12 +23,20 @@ from .config import BACKEND_DIR, DEFAULT_MARGIN_MULTIPLE, FIXTURES_DIR, INVENTOR
 from .connectors.mock_shop import mock_shop_data
 from .connectors.shopify import ShopifyClient, ShopifyOAuth
 from .economics import filter_viable
-from .ingest import aggregate_for_llm, compute_price_band, infer_budget, parse_orders, shopify_orders_to_df
+from .ingest import (
+    aggregate_for_llm,
+    compute_price_band,
+    compute_stats,
+    infer_budget,
+    parse_orders,
+    shopify_orders_to_df,
+)
 from .profile import build_profile
 from .rank import rank
 from .rationale import write_rationales
 from .schemas import InventoryItem, OnboardResponse, RecommendationsResponse
 from .search import find_candidates
+from .story import generate_story
 from .voice import transcribe as transcribe_voice
 
 logging.basicConfig(level=logging.INFO)
@@ -160,6 +168,8 @@ async def onboard(
         aggregate_for_llm(df), price_band, budget, margin_multiple,
         description=description, active_listings=active_listings or None,
     )
+    profile.stats = compute_stats(df)
+    profile.stats.active_listings = len(active_listings)
 
     seller_id = storage.new_seller_id()
     storage.save_profile(seller_id, profile)
@@ -186,6 +196,19 @@ def recommendations(
     bundles = build_bundles(ranked, viable, budget)              # stage 6
     write_rationales(bundles, profile)                           # stage 7
     return RecommendationsResponse(bundles=bundles, relaxations=relaxations)
+
+
+@app.get("/seller/{seller_id}/story")
+def seller_story(seller_id: str) -> dict:
+    """AI-written seller profile for the profile page — generated once, cached."""
+    profile = storage.get_profile(seller_id)
+    if profile is None:
+        raise HTTPException(status_code=404, detail=f"unknown seller_id {seller_id!r}")
+    story = storage.get_story(seller_id)
+    if story is None:
+        story = generate_story(profile)
+        storage.save_story(seller_id, story)
+    return {"seller_id": seller_id, "profile": profile.model_dump(), "story": story}
 
 
 @app.get("/inventory")

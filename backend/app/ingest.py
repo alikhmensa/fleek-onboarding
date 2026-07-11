@@ -76,6 +76,25 @@ def compute_price_band(df: pd.DataFrame, currency: str = "GBP") -> PriceBand:
     )
 
 
+def compute_stats(df: pd.DataFrame) -> "ShopStats":
+    """Deterministic business-size estimate from the order history."""
+    from .schemas import ShopStats
+
+    revenue = float((df["price"] * df["quantity"]).sum())
+    units = int(df["quantity"].sum())
+    weeks = 4.0
+    if "created_at" in df.columns:
+        dates = pd.to_datetime(df["created_at"], errors="coerce", utc=True, format="mixed").dropna()
+        if len(dates) > 1:
+            weeks = max((dates.max() - dates.min()).days / 7.0, 1.0)
+    return ShopStats(
+        orders_analysed=units,
+        est_monthly_revenue=round(revenue / weeks * 4.33, 0),
+        items_per_week=round(units / weeks, 1),
+        avg_item_price=round(revenue / max(units, 1), 2),
+    )
+
+
 def infer_budget(df: pd.DataFrame, margin_multiple: float) -> float:
     """~4 weeks of restock at their sales pace: 4 × weekly revenue ÷ margin multiple."""
     revenue = float((df["price"] * df["quantity"]).sum())

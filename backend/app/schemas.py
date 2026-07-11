@@ -13,12 +13,21 @@ class Saturation(BaseModel):
     gaps: list[str] = []
 
 
+class ShopStats(BaseModel):
+    orders_analysed: int
+    est_monthly_revenue: float
+    items_per_week: float
+    avg_item_price: float
+    active_listings: int = 0
+
+
 class SellerProfile(BaseModel):
     aesthetic: list[str]
     price_band: PriceBand
     saturation: Saturation
     assumed_margin_multiple: float = 3.0
     budget: float
+    stats: ShopStats | None = None
 
 
 class InventoryItem(BaseModel):
