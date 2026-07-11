@@ -1,5 +1,11 @@
-"""Seed a Shopify development store with active listings + backdated order history,
-so the demo runs against a REAL store with a real (imported) trading history.
+"""Seed a Shopify development store with backdated order history (and optionally
+products), so the demo runs against a REAL store with a real (imported) history.
+
+Shiv's store already has products (seed_shopify.py on his branch), so by default
+this creates ORDERS ONLY — pass --products for a fresh empty store.
+The orders are the StreetWear Vault persona (premium, £45-195) and deliberately
+DISJOINT from data/streetwear_vault_orders.xlsx (the "other channel" upload) so
+connecting the store and uploading the sheet never double-counts a sale.
 
 Setup (one-time, in the dev store admin):
   Settings -> Apps and sales channels -> Develop apps -> Create app
@@ -61,21 +67,30 @@ PRODUCTS = [
 
 # --- Past sales: same taste, sold over the last ~10 weeks (custom line items,
 # --- so no inventory juggling needed)
+# StreetWear Vault sales on Shopify — echoes the store's actual product wall.
+# Keep DISJOINT from scripts/generate_demo_xlsx.py (the other-channel upload).
 SOLD = [
-    ("Carhartt Detroit Jacket - Brown", 58), ("Carhartt Double Knee Pants", 45),
-    ("Carhartt Chore Coat - Black", 55), ("Carhartt Hooded Vest - Moss", 42),
-    ("Nike 90s Sweatshirt - Grey", 38), ("Nike Y2K Windbreaker - Blue", 40),
-    ("Adidas Track Jacket - Navy", 34), ("Umbro Drill Top - Green", 25),
-    ("Kappa Popper Track Pants", 28), ("Champion Reverse Weave Hoodie", 36),
-    ("Reebok 90s Hoodie - Grey", 30), ("Fila Colour-Block Half-Zip", 32),
-    ("Levi's 501 - Dark Wash", 42), ("Levi's Trucker Jacket", 48),
-    ("Diesel Y2K Flared Jeans", 46), ("Dickies 874 - Charcoal", 30),
+    ("Nike Air Max 90 - Triple White", 85), ("Carhartt WIP Michigan Coat - Black", 120),
+    ("Stussy Logo Hoodie - Navy", 65), ("Vintage Levi's 501 - Light Wash", 55),
+    ("The North Face Nuptse 700 - Black", 195), ("Adidas Samba OG - White/Black", 78),
+    ("New Balance 550 - White/Green", 88), ("Palace Tri-Ferg Hoodie - Black", 90),
+    ("Carhartt WIP Detroit Jacket - Blacksmith", 110), ("Nike Air Force 1 - White", 75),
+    ("Stussy World Tour Crewneck - Grey", 70), ("Supreme Small Box Hoodie - Red", 125),
 ]
 
 
 def main() -> None:
     print(f"Seeding {SHOP} ...")
 
+    if "--products" not in sys.argv:
+        print("skipping product creation (store already has products; pass --products to create)")
+    else:
+        _create_products()
+
+    _create_orders()
+
+
+def _create_products() -> None:
     for title, vendor, ptype, price, body in PRODUCTS:
         post("products", {
             "product": {
@@ -90,6 +105,8 @@ def main() -> None:
         })
     print(f"created {len(PRODUCTS)} active products")
 
+
+def _create_orders() -> None:
     now = datetime.now(timezone.utc)
     n_orders = 0
     for week in range(10):

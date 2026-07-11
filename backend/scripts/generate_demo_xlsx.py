@@ -1,8 +1,9 @@
 """Generate data/streetwear_vault_orders.xlsx — the demo upload spreadsheet.
 
-Order history for the "StreetWear Vault" persona (Shiv's dev store): branded
-streetwear sold at £45-120, heavy on jackets, hoodies and sneakers, so the
-inferred gaps are knitwear / denim / accessories / tees per data/SCENARIO.md.
+StreetWear Vault's sales from their OTHER channel (eBay/Depop) — same premium
+streetwear persona as the Shopify dev store, heavy on jackets/hoodies/sneakers,
+but a deliberately DISJOINT set of line items from scripts/populate_shop.py so
+store-connect + upload merge without double-counting a single sale.
 Dates are spread over the last 10 weeks from today — re-run before the demo
 so the history looks current.
 
@@ -21,7 +22,7 @@ random.seed(11)
 # (line item title, vendor, base price) — what this shop actually sells
 SOLD = [
     ("Carhartt WIP Detroit Jacket - Hamilton Brown", "Carhartt WIP", 115),
-    ("Carhartt WIP Michigan Chore Coat - Black", "Carhartt WIP", 105),
+    ("Carhartt WIP OG Chore Coat - Dearborn", "Carhartt WIP", 105),
     ("Carhartt WIP Nimbus Pullover - Purple", "Carhartt WIP", 75),
     ("Carhartt WIP Active Jacket - Moss", "Carhartt WIP", 95),
     ("Nike Air Max 95 - Neon", "Nike", 90),
@@ -31,11 +32,11 @@ SOLD = [
     ("Stussy 8-Ball Hoodie - Black", "Stussy", 80),
     ("Stussy Logo Crewneck - Navy", "Stussy", 65),
     ("Palace Tri-Ferg Hoodie - Grey", "Palace", 85),
-    ("Adidas Samba OG - White/Green", "Adidas", 80),
+    ("Adidas Gazelle - Navy", "Adidas", 72),
     ("Adidas Firebird Track Jacket - Red", "Adidas", 48),
-    ("New Balance 550 - White/Green", "New Balance", 88),
+    ("New Balance 2002R - Protection Pack", "New Balance", 115),
     ("New Balance 990v3 - Grey", "New Balance", 110),
-    ("The North Face Nuptse 700 - Black", "The North Face", 120),
+    ("Salomon XT-6 - Black/Phantom", "Salomon", 105),
     ("The North Face Denali Fleece - Purple", "The North Face", 70),
     ("Levi's Type 3 Sherpa Trucker - Mid Blue", "Levi's", 62),
 ]
