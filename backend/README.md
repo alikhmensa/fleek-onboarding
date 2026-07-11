@@ -78,3 +78,26 @@ re-run `scripts/seed_inventory.py`. Keep it **winnable**: for each demo seller C
 >=15 items must clear 3x margin with resale inside the seller's price band ±25%,
 across >=3 categories and >=3 suppliers, including the profile's gap categories —
 otherwise the economics filter empties the funnel on stage.
+
+## Deploying (Render / Railway, via the root Dockerfile)
+
+One container serves API + frontend. Steps (Render shown; Railway is equivalent):
+
+1. Push the branch to GitHub, create a **Web Service** from the repo, runtime
+   **Docker** (it finds the root `Dockerfile` automatically).
+2. Add a **persistent disk** (e.g. 1GB) mounted at `/data`, and set env var
+   `DB_DIR=/data` — otherwise SQLite (users, profiles, shop tokens) is wiped on
+   every deploy. Free tiers without disks work for a demo but forget everyone.
+3. Set env vars: `GOOGLE_API_KEY`, `PINECONE_API_KEY`, `PINECONE_INDEX`,
+   `SHOPIFY_API_KEY`, `SHOPIFY_API_SECRET`, `SHOPIFY_ADMIN_TOKEN`,
+   `JWT_SECRET` (generate a long random one — do NOT ship the dev default),
+   and `SHOPIFY_REDIRECT_URI=https://<your-app>.onrender.com/callback/shopify`.
+4. In the Shopify Partners dashboard, add that same
+   `https://<your-app>.onrender.com/callback/shopify` to the VEND app's
+   **Allowed redirection URLs** (keep the localhost one for dev).
+5. Deploy. The frontend is at `https://<your-app>.onrender.com/`, docs at `/docs`.
+
+Notes: the vector index (Pinecone) and LLM (Gemini) are external services — no
+extra deployment needed. `data/embeddings.json` is committed, so search works
+even with no Pinecone key. Free-tier instances sleep when idle (~1 min cold
+start) — open the site before the demo.

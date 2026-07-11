@@ -5,7 +5,10 @@
 //      the backend serves this folder at http://localhost:8000/
 // ─────────────────────────────────────────────────────
 
-const API_BASE    = window.location.port === '8000' ? '' : 'http://localhost:8000';
+// Same-origin by default (works locally on :8000 and on any deployed domain);
+// only a separate localhost dev server (e.g. live-reload on :5173) targets :8000.
+const API_BASE = (['localhost', '127.0.0.1'].includes(location.hostname) && location.port !== '8000')
+  ? 'http://localhost:8000' : '';
 
 const PAGES = [
   'page-welcome',
