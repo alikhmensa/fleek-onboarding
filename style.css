@@ -651,3 +651,144 @@ code{background:var(--surface);border:1px solid var(--border);border-radius:4px;
 .dropdown-item.danger .di-label svg {
   color: var(--red);
 }
+
+/* ─── SETTINGS MODAL ─── */
+.settings-modal-content {
+  background: var(--bg);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 800px;
+  max-height: 85vh;
+  display: flex;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.settings-sidebar {
+  width: 250px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  padding: 24px;
+  flex-shrink: 0;
+}
+.settings-sidebar h3 {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+.settings-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.settings-nav li {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text2);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+.settings-nav li:hover {
+  background: var(--border);
+  color: var(--text);
+}
+.settings-nav li.active {
+  background: var(--text);
+  color: var(--bg);
+}
+.settings-body {
+  flex-grow: 1;
+  padding: 32px 40px;
+  position: relative;
+  overflow-y: auto;
+  background: var(--surface);
+}
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 1.8rem;
+  color: var(--text2);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.modal-close:hover {
+  color: var(--text);
+  background: var(--border);
+}
+.settings-tab {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.settings-tab.active {
+  display: block;
+}
+.settings-tab h2 {
+  color: var(--text);
+  margin-bottom: 4px;
+  font-size: 1.5rem;
+}
+
+/* ─── SYSTEM DARK MODE SUPPORT ─── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:          #0a0a0f;
+    --bg2:         #111118;
+    --bg3:         #18181f;
+    --surface:     #1e1e28;
+    --surface2:    #252533;
+    --border:      rgba(255,255,255,0.07);
+    --border-h:    rgba(255,255,255,0.15);
+
+    --purple:      #F8C642;
+    --purple-dim:  #facc15;
+    --teal:        #F8C642;
+    --green:       #22c55e;
+    --red:         #ef4444;
+    --amber:       #f59e0b;
+
+    --text:        #f0f0f8;
+    --text2:       #a0a0b8;
+    --text3:       #5a5a7a;
+
+    --grad:        linear-gradient(135deg, #F8C642 0%, #facc15 100%);
+    --grad-btn:    linear-gradient(135deg, #F8C642 0%, #facc15 100%);
+
+    --shadow:      0 4px 24px rgba(0,0,0,0.4);
+    --shadow-lg:   0 8px 48px rgba(0,0,0,0.6);
+  }
+  
+  .navbar { background: rgba(10,10,15,0.85); }
+  
+  .btn-primary, .btn-platform, .btn-verify-email, .btn-buy-bundle:hover {
+    color: #000;
+  }
+  
+  .connected-avatar, .email-avatar, .flow-step-num, .persona-avatar {
+    color: #000;
+  }
+  
+  /* Ensuring SVGs in dark mode buttons are also black */
+  .btn-primary svg, .btn-platform svg {
+    stroke: #000;
+  }
+  
+  /* Progress bar contrast */
+  .progress-fill {
+    background: var(--teal);
+  }
+}

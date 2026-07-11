@@ -814,9 +814,90 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.dropdown-sub-menu .sub-item').forEach(item => {
       item.addEventListener('click', (e) => {
-        showToast(`${e.target.textContent.trim()} opened`, 'info');
-        profileMenuWrap.classList.remove('open');
+        const text = e.target.textContent.trim();
+        let tabId = 'personal';
+        if (text === 'Store Connections') tabId = 'stores';
+        if (text === 'Preferences') tabId = 'prefs';
+        if (text === 'Change Password') tabId = 'password';
+        if (text === 'Two-Factor Auth') tabId = '2fa';
+        if (text === 'Active Sessions') tabId = 'sessions';
+        
+        openSettings(tabId);
       });
     });
   }
 });
+
+// ── SETTINGS MODAL LOGIC ───────────────────────────────
+const settingsModal = document.getElementById('settingsModal');
+const settingsCloseBtn = document.getElementById('settingsCloseBtn');
+const settingsNavItems = document.querySelectorAll('.settings-nav li');
+const settingsTabs = document.querySelectorAll('.settings-tab');
+
+window.openSettings = function(tabId) {
+  // Populate data
+  if (state.user.firstName) document.getElementById('setFirstName').value = state.user.firstName;
+  if (state.user.lastName) document.getElementById('setLastName').value = state.user.lastName;
+  if (state.user.email) document.getElementById('setEmail').value = state.user.email;
+  if (state.sourcingContext) document.getElementById('setPrefs').value = state.sourcingContext;
+  
+  // Reset active state
+  settingsNavItems.forEach(i => i.classList.remove('active'));
+  settingsTabs.forEach(t => t.classList.remove('active'));
+  
+  // Set active tab
+  const navItem = document.querySelector(`.settings-nav li[data-tab="${tabId}"]`);
+  const tabContent = document.getElementById(`tab-${tabId}`);
+  if (navItem && tabContent) {
+    navItem.classList.add('active');
+    tabContent.classList.add('active');
+  } else {
+    document.querySelector('.settings-nav li[data-tab="personal"]').classList.add('active');
+    document.getElementById('tab-personal').classList.add('active');
+  }
+
+  settingsModal.style.display = 'flex';
+  
+  // Close profile menu if open
+  const profileMenuWrap = document.getElementById('profileMenuWrap');
+  if (profileMenuWrap) profileMenuWrap.classList.remove('open');
+};
+
+if (settingsCloseBtn) {
+  settingsCloseBtn.addEventListener('click', () => {
+    settingsModal.style.display = 'none';
+  });
+}
+
+window.addEventListener('click', (e) => {
+  if (e.target === settingsModal) {
+    settingsModal.style.display = 'none';
+  }
+});
+
+settingsNavItems.forEach(item => {
+  item.addEventListener('click', () => {
+    settingsNavItems.forEach(i => i.classList.remove('active'));
+    settingsTabs.forEach(t => t.classList.remove('active'));
+    
+    item.classList.add('active');
+    document.getElementById(`tab-${item.dataset.tab}`).classList.add('active');
+  });
+});
+
+window.savePersonalInfo = function() {
+  state.user.firstName = document.getElementById('setFirstName').value;
+  state.user.lastName = document.getElementById('setLastName').value;
+  
+  const pdName = document.getElementById('pdName');
+  if (pdName) {
+    pdName.textContent = `${state.user.firstName} ${state.user.lastName}`;
+  }
+  
+  showToast('Personal info updated successfully', 'success');
+};
+
+window.savePreferences = function() {
+  state.sourcingContext = document.getElementById('setPrefs').value;
+  showToast('Preferences updated successfully', 'success');
+};
